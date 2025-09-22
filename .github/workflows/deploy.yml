@@ -18,12 +18,12 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: true
           fetch-depth: 0 # Fetch all history for git info
           ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
       - name: Install Dependencies
@@ -33,7 +33,7 @@ jobs:
       - name: Copy Google Verification File
         run: cp content/googleeeeb3ff0609d36d5.html public/
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: public
  
