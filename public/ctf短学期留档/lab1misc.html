@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en"><head><title>lab1misc</title><meta charset="utf-8"/><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted Grotesk:wght@400;700&amp;family=Source Sans Pro:ital,wght@0,400;0,600;1,400;1,600&amp;family=IBM Plex Mono:wght@400;600&amp;display=swap"/><link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin="anonymous"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="og:site_name" content="Quartz 4"/><meta property="og:title" content="lab1misc"/><meta property="og:type" content="website"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:title" content="lab1misc"/><meta name="twitter:description" content="Task1.1 编写代码编写代码的总体思路 实验的核心是模拟“用A编码，用B解码”的过程。在计算机中，文本在内存里是以统一的、抽象的Unicode码点存在的（例如，汉字“你”是U+4F60）。但当文本需要被存储或传输时，就必须通过一种具体的**编码（Encode）规则将其转换为字节序列（Byte Stream）。当需要再次读取和显示文本时，则需要通过相应的解码（Decode）**规则将字节序列转换回内存中的Unicode字符。 乱码的产生，正是解码规则与编码规则不匹配导致的。我的编程思路遵循以下步骤： 定义基准: 创建一个包含中文字符的原始文本字符串 original_text 作为我们所有实..."/><meta property="og:description" content="Task1.1 编写代码编写代码的总体思路 实验的核心是模拟“用A编码，用B解码”的过程。在计算机中，文本在内存里是以统一的、抽象的Unicode码点存在的（例如，汉字“你”是U+4F60）。但当文本需要被存储或传输时，就必须通过一种具体的**编码（Encode）规则将其转换为字节序列（Byte Stream）。当需要再次读取和显示文本时，则需要通过相应的解码（Decode）**规则将字节序列转换回内存中的Unicode字符。 乱码的产生，正是解码规则与编码规则不匹配导致的。我的编程思路遵循以下步骤： 定义基准: 创建一个包含中文字符的原始文本字符串 original_text 作为我们所有实..."/><meta property="og:image:alt" content="Task1.1 编写代码编写代码的总体思路 实验的核心是模拟“用A编码，用B解码”的过程。在计算机中，文本在内存里是以统一的、抽象的Unicode码点存在的（例如，汉字“你”是U+4F60）。但当文本需要被存储或传输时，就必须通过一种具体的**编码（Encode）规则将其转换为字节序列（Byte Stream）。当需要再次读取和显示文本时，则需要通过相应的解码（Decode）**规则将字节序列转换回内存中的Unicode字符。 乱码的产生，正是解码规则与编码规则不匹配导致的。我的编程思路遵循以下步骤： 定义基准: 创建一个包含中文字符的原始文本字符串 original_text 作为我们所有实..."/><meta property="twitter:domain" content="quartz.jzhao.xyz"/><meta property="og:url" content="https://quartz.jzhao.xyz/ctf短学期留档/lab1misc"/><meta property="twitter:url" content="https://quartz.jzhao.xyz/ctf短学期留档/lab1misc"/><link rel="icon" href="../static/icon.png"/><meta name="description" content="Task1.1 编写代码编写代码的总体思路 实验的核心是模拟“用A编码，用B解码”的过程。在计算机中，文本在内存里是以统一的、抽象的Unicode码点存在的（例如，汉字“你”是U+4F60）。但当文本需要被存储或传输时，就必须通过一种具体的**编码（Encode）规则将其转换为字节序列（Byte Stream）。当需要再次读取和显示文本时，则需要通过相应的解码（Decode）**规则将字节序列转换回内存中的Unicode字符。 乱码的产生，正是解码规则与编码规则不匹配导致的。我的编程思路遵循以下步骤： 定义基准: 创建一个包含中文字符的原始文本字符串 original_text 作为我们所有实..."/><meta name="generator" content="Quartz"/><link href="../index.css" rel="stylesheet" type="text/css" spa-preserve/><style>.expand-button {
+  position: absolute;
+  display: flex;
+  float: right;
+  padding: 0.4rem;
+  margin: 0.3rem;
+  right: 0;
+  color: var(--gray);
+  border-color: var(--dark);
+  background-color: var(--light);
+  border: 1px solid;
+  border-radius: 5px;
+  opacity: 0;
+  transition: 0.2s;
+}
+.expand-button > svg {
+  fill: var(--light);
+  filter: contrast(0.3);
+}
+.expand-button:hover {
+  cursor: pointer;
+  border-color: var(--secondary);
+}
+.expand-button:focus {
+  outline: 0;
+}
+
+pre:hover > .expand-button {
+  opacity: 1;
+  transition: 0.2s;
+}
+
+#mermaid-container {
+  position: fixed;
+  contain: layout;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: none;
+  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.5);
+}
+#mermaid-container.active {
+  display: inline-block;
+}
+#mermaid-container > #mermaid-space {
+  border: 1px solid var(--lightgray);
+  background-color: var(--light);
+  border-radius: 5px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 80vh;
+  width: 80vw;
+  overflow: hidden;
+}
+#mermaid-container > #mermaid-space > .mermaid-content {
+  padding: 2rem;
+  position: relative;
+  transform-origin: 0 0;
+  transition: transform 0.1s ease;
+  overflow: visible;
+  min-height: 200px;
+  min-width: 200px;
+}
+#mermaid-container > #mermaid-space > .mermaid-content pre {
+  margin: 0;
+  border: none;
+}
+#mermaid-container > #mermaid-space > .mermaid-content svg {
+  max-width: none;
+  height: auto;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  background: var(--light);
+  border: 1px solid var(--lightgray);
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--lightgray);
+  background: var(--light);
+  color: var(--dark);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  font-family: var(--bodyFont);
+  transition: all 0.2s ease;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:hover {
+  background: var(--lightgray);
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:active {
+  transform: translateY(1px);
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:nth-child(2) {
+  width: auto;
+  padding: 0 12px;
+  font-size: 14px;
+}
+/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VSb290IjoiL1VzZXJzL2thaXNlbnllL0Rlc2t0b3Avd2Vic2l0ZS9xdWFydHovcXVhcnR6L2NvbXBvbmVudHMvc3R5bGVzIiwic291cmNlcyI6WyJtZXJtYWlkLmlubGluZS5zY3NzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBO0VBQ0U7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7O0FBRUE7RUFDRTtFQUNBOztBQUdGO0VBQ0U7RUFDQTs7QUFHRjtFQUNFOzs7QUFLRjtFQUNFO0VBQ0E7OztBQUlKO0VBQ0U7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFOztBQUdGO0VBQ0U7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7O0FBRUE7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFO0VBQ0E7O0FBR0Y7RUFDRTtFQUNBOztBQUlKO0VBQ0U7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7O0FBRUE7RUFDRTs7QUFHRjtFQUNFOztBQUlGO0VBQ0U7RUFDQTtFQUNBIiwic291cmNlc0NvbnRlbnQiOlsiLmV4cGFuZC1idXR0b24ge1xuICBwb3NpdGlvbjogYWJzb2x1dGU7XG4gIGRpc3BsYXk6IGZsZXg7XG4gIGZsb2F0OiByaWdodDtcbiAgcGFkZGluZzogMC40cmVtO1xuICBtYXJnaW46IDAuM3JlbTtcbiAgcmlnaHQ6IDA7IC8vIE5PVEU6IHJpZ2h0IHdpbGwgYmUgc2V0IGluIG1lcm1haWQuaW5saW5lLnRzXG4gIGNvbG9yOiB2YXIoLS1ncmF5KTtcbiAgYm9yZGVyLWNvbG9yOiB2YXIoLS1kYXJrKTtcbiAgYmFja2dyb3VuZC1jb2xvcjogdmFyKC0tbGlnaHQpO1xuICBib3JkZXI6IDFweCBzb2xpZDtcbiAgYm9yZGVyLXJhZGl1czogNXB4O1xuICBvcGFjaXR5OiAwO1xuICB0cmFuc2l0aW9uOiAwLjJzO1xuXG4gICYgPiBzdmcge1xuICAgIGZpbGw6IHZhcigtLWxpZ2h0KTtcbiAgICBmaWx0ZXI6IGNvbnRyYXN0KDAuMyk7XG4gIH1cblxuICAmOmhvdmVyIHtcbiAgICBjdXJzb3I6IHBvaW50ZXI7XG4gICAgYm9yZGVyLWNvbG9yOiB2YXIoLS1zZWNvbmRhcnkpO1xuICB9XG5cbiAgJjpmb2N1cyB7XG4gICAgb3V0bGluZTogMDtcbiAgfVxufVxuXG5wcmUge1xuICAmOmhvdmVyID4gLmV4cGFuZC1idXR0b24ge1xuICAgIG9wYWNpdHk6IDE7XG4gICAgdHJhbnNpdGlvbjogMC4ycztcbiAgfVxufVxuXG4jbWVybWFpZC1jb250YWluZXIge1xuICBwb3NpdGlvbjogZml4ZWQ7XG4gIGNvbnRhaW46IGxheW91dDtcbiAgei1pbmRleDogOTk5O1xuICBsZWZ0OiAwO1xuICB0b3A6IDA7XG4gIHdpZHRoOiAxMDB2dztcbiAgaGVpZ2h0OiAxMDB2aDtcbiAgb3ZlcmZsb3c6IGhpZGRlbjtcbiAgZGlzcGxheTogbm9uZTtcbiAgYmFja2Ryb3AtZmlsdGVyOiBibHVyKDRweCk7XG4gIGJhY2tncm91bmQ6IHJnYmEoMCwgMCwgMCwgMC41KTtcblxuICAmLmFjdGl2ZSB7XG4gICAgZGlzcGxheTogaW5saW5lLWJsb2NrO1xuICB9XG5cbiAgJiA+ICNtZXJtYWlkLXNwYWNlIHtcbiAgICBib3JkZXI6IDFweCBzb2xpZCB2YXIoLS1saWdodGdyYXkpO1xuICAgIGJhY2tncm91bmQtY29sb3I6IHZhcigtLWxpZ2h0KTtcbiAgICBib3JkZXItcmFkaXVzOiA1cHg7XG4gICAgcG9zaXRpb246IGZpeGVkO1xuICAgIHRvcDogNTAlO1xuICAgIGxlZnQ6IDUwJTtcbiAgICB0cmFuc2Zvcm06IHRyYW5zbGF0ZSgtNTAlLCAtNTAlKTtcbiAgICBoZWlnaHQ6IDgwdmg7XG4gICAgd2lkdGg6IDgwdnc7XG4gICAgb3ZlcmZsb3c6IGhpZGRlbjtcblxuICAgICYgPiAubWVybWFpZC1jb250ZW50IHtcbiAgICAgIHBhZGRpbmc6IDJyZW07XG4gICAgICBwb3NpdGlvbjogcmVsYXRpdmU7XG4gICAgICB0cmFuc2Zvcm0tb3JpZ2luOiAwIDA7XG4gICAgICB0cmFuc2l0aW9uOiB0cmFuc2Zvcm0gMC4xcyBlYXNlO1xuICAgICAgb3ZlcmZsb3c6IHZpc2libGU7XG4gICAgICBtaW4taGVpZ2h0OiAyMDBweDtcbiAgICAgIG1pbi13aWR0aDogMjAwcHg7XG5cbiAgICAgIHByZSB7XG4gICAgICAgIG1hcmdpbjogMDtcbiAgICAgICAgYm9yZGVyOiBub25lO1xuICAgICAgfVxuXG4gICAgICBzdmcge1xuICAgICAgICBtYXgtd2lkdGg6IG5vbmU7XG4gICAgICAgIGhlaWdodDogYXV0bztcbiAgICAgIH1cbiAgICB9XG5cbiAgICAmID4gLm1lcm1haWQtY29udHJvbHMge1xuICAgICAgcG9zaXRpb246IGFic29sdXRlO1xuICAgICAgYm90dG9tOiAyMHB4O1xuICAgICAgcmlnaHQ6IDIwcHg7XG4gICAgICBkaXNwbGF5OiBmbGV4O1xuICAgICAgZ2FwOiA4cHg7XG4gICAgICBwYWRkaW5nOiA4cHg7XG4gICAgICBiYWNrZ3JvdW5kOiB2YXIoLS1saWdodCk7XG4gICAgICBib3JkZXI6IDFweCBzb2xpZCB2YXIoLS1saWdodGdyYXkpO1xuICAgICAgYm9yZGVyLXJhZGl1czogNnB4O1xuICAgICAgYm94LXNoYWRvdzogMCAycHggNHB4IHJnYmEoMCwgMCwgMCwgMC4xKTtcbiAgICAgIHotaW5kZXg6IDI7XG5cbiAgICAgIC5tZXJtYWlkLWNvbnRyb2wtYnV0dG9uIHtcbiAgICAgICAgZGlzcGxheTogZmxleDtcbiAgICAgICAgYWxpZ24taXRlbXM6IGNlbnRlcjtcbiAgICAgICAganVzdGlmeS1jb250ZW50OiBjZW50ZXI7XG4gICAgICAgIHdpZHRoOiAzMnB4O1xuICAgICAgICBoZWlnaHQ6IDMycHg7XG4gICAgICAgIHBhZGRpbmc6IDA7XG4gICAgICAgIGJvcmRlcjogMXB4IHNvbGlkIHZhcigtLWxpZ2h0Z3JheSk7XG4gICAgICAgIGJhY2tncm91bmQ6IHZhcigtLWxpZ2h0KTtcbiAgICAgICAgY29sb3I6IHZhcigtLWRhcmspO1xuICAgICAgICBib3JkZXItcmFkaXVzOiA0cHg7XG4gICAgICAgIGN1cnNvcjogcG9pbnRlcjtcbiAgICAgICAgZm9udC1zaXplOiAxNnB4O1xuICAgICAgICBmb250LWZhbWlseTogdmFyKC0tYm9keUZvbnQpO1xuICAgICAgICB0cmFuc2l0aW9uOiBhbGwgMC4ycyBlYXNlO1xuXG4gICAgICAgICY6aG92ZXIge1xuICAgICAgICAgIGJhY2tncm91bmQ6IHZhcigtLWxpZ2h0Z3JheSk7XG4gICAgICAgIH1cblxuICAgICAgICAmOmFjdGl2ZSB7XG4gICAgICAgICAgdHJhbnNmb3JtOiB0cmFuc2xhdGVZKDFweCk7XG4gICAgICAgIH1cblxuICAgICAgICAvLyBTdHlsZSB0aGUgcmVzZXQgYnV0dG9uIGRpZmZlcmVudGx5XG4gICAgICAgICY6bnRoLWNoaWxkKDIpIHtcbiAgICAgICAgICB3aWR0aDogYXV0bztcbiAgICAgICAgICBwYWRkaW5nOiAwIDEycHg7XG4gICAgICAgICAgZm9udC1zaXplOiAxNHB4O1xuICAgICAgICB9XG4gICAgICB9XG4gICAgfVxuICB9XG59XG4iXX0= */</style><link href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" rel="stylesheet" type="text/css" spa-preserve/><script src="../prescript.js" type="application/javascript" spa-preserve></script><script type="application/javascript" spa-preserve>const fetchData = fetch("../static/contentIndex.json").then(data => data.json())</script><link rel="alternate" type="application/rss+xml" title="RSS Feed" href="https://quartz.jzhao.xyz/index.xml"/><meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/><meta property="og:image" content="https://quartz.jzhao.xyz/ctf短学期留档/lab1misc-og-image.webp"/><meta property="og:image:url" content="https://quartz.jzhao.xyz/ctf短学期留档/lab1misc-og-image.webp"/><meta name="twitter:image" content="https://quartz.jzhao.xyz/ctf短学期留档/lab1misc-og-image.webp"/><meta property="og:image:type" content="image/.webp"/></head><body data-slug="ctf短学期留档/lab1misc"><div id="quartz-root" class="page"><div id="quartz-body"><div class="left sidebar"><h2 class="page-title"><a href="..">Quartz 4</a></h2><div class="spacer mobile-only"></div><div class="flex-component" style="flex-direction: row; flex-wrap: nowrap; gap: 1rem;"><div style="flex-grow: 1; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><div class="search"><button class="search-button"><p>Search</p><svg role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 19.9 19.7"><title>Search</title><g class="search-path" fill="none"><path stroke-linecap="square" d="M18.5 18.3l-5.4-5.4"></path><circle cx="8" cy="8" r="7"></circle></g></svg></button><div class="search-container"><div class="search-space"><input autocomplete="off" class="search-bar" name="search" type="text" aria-label="Search for something" placeholder="Search for something"/><div class="search-layout" data-preview="true"></div></div></div></div></div><div style="flex-grow: 0; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><button class="darkmode"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="dayIcon" x="0px" y="0px" viewBox="0 0 35 35" style="enable-background:new 0 0 35 35" xml:space="preserve" aria-label="Dark mode"><title>Dark mode</title><path d="M6,17.5C6,16.672,5.328,16,4.5,16h-3C0.672,16,0,16.672,0,17.5    S0.672,19,1.5,19h3C5.328,19,6,18.328,6,17.5z M7.5,26c-0.414,0-0.789,0.168-1.061,0.439l-2,2C4.168,28.711,4,29.086,4,29.5    C4,30.328,4.671,31,5.5,31c0.414,0,0.789-0.168,1.06-0.44l2-2C8.832,28.289,9,27.914,9,27.5C9,26.672,8.329,26,7.5,26z M17.5,6    C18.329,6,19,5.328,19,4.5v-3C19,0.672,18.329,0,17.5,0S16,0.672,16,1.5v3C16,5.328,16.671,6,17.5,6z M27.5,9    c0.414,0,0.789-0.168,1.06-0.439l2-2C30.832,6.289,31,5.914,31,5.5C31,4.672,30.329,4,29.5,4c-0.414,0-0.789,0.168-1.061,0.44    l-2,2C26.168,6.711,26,7.086,26,7.5C26,8.328,26.671,9,27.5,9z M6.439,8.561C6.711,8.832,7.086,9,7.5,9C8.328,9,9,8.328,9,7.5    c0-0.414-0.168-0.789-0.439-1.061l-2-2C6.289,4.168,5.914,4,5.5,4C4.672,4,4,4.672,4,5.5c0,0.414,0.168,0.789,0.439,1.06    L6.439,8.561z M33.5,16h-3c-0.828,0-1.5,0.672-1.5,1.5s0.672,1.5,1.5,1.5h3c0.828,0,1.5-0.672,1.5-1.5S34.328,16,33.5,16z     M28.561,26.439C28.289,26.168,27.914,26,27.5,26c-0.828,0-1.5,0.672-1.5,1.5c0,0.414,0.168,0.789,0.439,1.06l2,2    C28.711,30.832,29.086,31,29.5,31c0.828,0,1.5-0.672,1.5-1.5c0-0.414-0.168-0.789-0.439-1.061L28.561,26.439z M17.5,29    c-0.829,0-1.5,0.672-1.5,1.5v3c0,0.828,0.671,1.5,1.5,1.5s1.5-0.672,1.5-1.5v-3C19,29.672,18.329,29,17.5,29z M17.5,7    C11.71,7,7,11.71,7,17.5S11.71,28,17.5,28S28,23.29,28,17.5S23.29,7,17.5,7z M17.5,25c-4.136,0-7.5-3.364-7.5-7.5    c0-4.136,3.364-7.5,7.5-7.5c4.136,0,7.5,3.364,7.5,7.5C25,21.636,21.636,25,17.5,25z"></path></svg><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="nightIcon" x="0px" y="0px" viewBox="0 0 100 100" style="enable-background:new 0 0 100 100" xml:space="preserve" aria-label="Light mode"><title>Light mode</title><path d="M96.76,66.458c-0.853-0.852-2.15-1.064-3.23-0.534c-6.063,2.991-12.858,4.571-19.655,4.571  C62.022,70.495,50.88,65.88,42.5,57.5C29.043,44.043,25.658,23.536,34.076,6.47c0.532-1.08,0.318-2.379-0.534-3.23  c-0.851-0.852-2.15-1.064-3.23-0.534c-4.918,2.427-9.375,5.619-13.246,9.491c-9.447,9.447-14.65,22.008-14.65,35.369  c0,13.36,5.203,25.921,14.65,35.368s22.008,14.65,35.368,14.65c13.361,0,25.921-5.203,35.369-14.65  c3.872-3.871,7.064-8.328,9.491-13.246C97.826,68.608,97.611,67.309,96.76,66.458z"></path></svg></button></div><div style="flex-grow: 0; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><button class="readermode"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="readerIcon" fill="currentColor" stroke="currentColor" stroke-width="0.2" stroke-linecap="round" stroke-linejoin="round" width="64px" height="64px" viewBox="0 0 24 24" aria-label="Reader mode"><title>Reader mode</title><g transform="translate(-1.8, -1.8) scale(1.15, 1.2)"><path d="M8.9891247,2.5 C10.1384702,2.5 11.2209868,2.96705384 12.0049645,3.76669482 C12.7883914,2.96705384 13.8709081,2.5 15.0202536,2.5 L18.7549359,2.5 C19.1691495,2.5 19.5049359,2.83578644 19.5049359,3.25 L19.5046891,4.004 L21.2546891,4.00457396 C21.6343849,4.00457396 21.9481801,4.28672784 21.9978425,4.6528034 L22.0046891,4.75457396 L22.0046891,20.25 C22.0046891,20.6296958 21.7225353,20.943491 21.3564597,20.9931534 L21.2546891,21 L2.75468914,21 C2.37499337,21 2.06119817,20.7178461 2.01153575,20.3517706 L2.00468914,20.25 L2.00468914,4.75457396 C2.00468914,4.37487819 2.28684302,4.061083 2.65291858,4.01142057 L2.75468914,4.00457396 L4.50368914,4.004 L4.50444233,3.25 C4.50444233,2.87030423 4.78659621,2.55650904 5.15267177,2.50684662 L5.25444233,2.5 L8.9891247,2.5 Z M4.50368914,5.504 L3.50468914,5.504 L3.50468914,19.5 L10.9478955,19.4998273 C10.4513189,18.9207296 9.73864328,18.5588115 8.96709342,18.5065584 L8.77307039,18.5 L5.25444233,18.5 C4.87474657,18.5 4.56095137,18.2178461 4.51128895,17.8517706 L4.50444233,17.75 L4.50368914,5.504 Z M19.5049359,17.75 C19.5049359,18.1642136 19.1691495,18.5 18.7549359,18.5 L15.2363079,18.5 C14.3910149,18.5 13.5994408,18.8724714 13.0614828,19.4998273 L20.5046891,19.5 L20.5046891,5.504 L19.5046891,5.504 L19.5049359,17.75 Z M18.0059359,3.999 L15.0202536,4 L14.8259077,4.00692283 C13.9889509,4.06666544 13.2254227,4.50975805 12.7549359,5.212 L12.7549359,17.777 L12.7782651,17.7601316 C13.4923805,17.2719483 14.3447024,17 15.2363079,17 L18.0059359,16.999 L18.0056891,4.798 L18.0033792,4.75457396 L18.0056891,4.71 L18.0059359,3.999 Z M8.9891247,4 L6.00368914,3.999 L6.00599909,4.75457396 L6.00599909,4.75457396 L6.00368914,4.783 L6.00368914,16.999 L8.77307039,17 C9.57551536,17 10.3461406,17.2202781 11.0128313,17.6202194 L11.2536891,17.776 L11.2536891,5.211 C10.8200889,4.56369974 10.1361548,4.13636104 9.37521067,4.02745763 L9.18347055,4.00692283 L8.9891247,4 Z"></path></g></svg></button></div></div><div class="explorer" data-behavior="link" data-collapsed="collapsed" data-savestate="true" data-data-fns="{&quot;order&quot;:[&quot;filter&quot;,&quot;map&quot;,&quot;sort&quot;],&quot;sortFn&quot;:&quot;(a,b)=>!a.isFolder&amp;&amp;!b.isFolder||a.isFolder&amp;&amp;b.isFolder?a.displayName.localeCompare(b.displayName,void 0,{numeric:!0,sensitivity:\&quot;base\&quot;}):!a.isFolder&amp;&amp;b.isFolder?1:-1&quot;,&quot;filterFn&quot;:&quot;node=>node.slugSegment!==\&quot;tags\&quot;&quot;,&quot;mapFn&quot;:&quot;node=>node&quot;}"><button type="button" class="explorer-toggle mobile-explorer hide-until-loaded" data-mobile="true" aria-controls="explorer-content"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-menu"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg></button><button type="button" class="title-button explorer-toggle desktop-explorer" data-mobile="false" aria-expanded="true"><h2>Explorer</h2><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><div class="explorer-content" aria-expanded="false"><ul class="explorer-ul overflow" id="list-0"><li class="overflow-end"></li></ul></div><template id="template-file"><li><a href="#"></a></li></template><template id="template-folder"><li><div class="folder-container"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="folder-icon"><polyline points="6 9 12 15 18 9"></polyline></svg><div><button class="folder-button"><span class="folder-title"></span></button></div></div><div class="folder-outer"><ul class="content"></ul></div></li></template></div></div><div class="center"><div class="page-header"><div class="popover-hint"><nav class="breadcrumb-container" aria-label="breadcrumbs"><div class="breadcrumb-element"><a href="../">Home</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../ctf短学期留档/">ctf短学期留档</a><p> ❯ </p></div><div class="breadcrumb-element"><a href>lab1misc</a></div></nav><h1 class="article-title">lab1misc</h1><p show-comma="true" class="content-meta"><time datetime="2025-07-18T14:46:26.000Z">Jul 18, 2025</time><span>30 min read</span></p></div></div><article class="popover-hint"><h2 id="task11">Task1.1<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#task11" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>编写代码编写代码的总体思路</p>
+<p>实验的核心是模拟“用A编码，用B解码”的过程。在计算机中，文本在内存里是以统一的、抽象的Unicode码点存在的（例如，汉字“你”是<code>U+4F60</code>）。但当文本需要被存储或传输时，就必须通过一种具体的**编码（Encode）<strong>规则将其转换为字节序列（Byte Stream）。当需要再次读取和显示文本时，则需要通过相应的</strong>解码（Decode）**规则将字节序列转换回内存中的Unicode字符。</p>
+<p>乱码的产生，正是解码规则与编码规则不匹配导致的。我的编程思路遵循以下步骤：</p>
+<ol>
+<li>
+<p><strong>定义基准</strong>: 创建一个包含中文字符的原始文本字符串 <code>original_text</code> 作为我们所有实验的“标准答案”。</p>
+<figure data-rehype-pretty-code-figure><pre tabindex="0" data-language="python3" data-theme="github-light github-dark"><code data-language="python3" data-theme="github-light github-dark" style="display:grid;"><span data-line><span>original_text = &quot;你好，这个世界，会出现乱码吗&quot;</span></span></code></pre></figure>
+</li>
+<li>
+<p><strong>正确编码</strong>: 将此原始文本分别用 <code>utf-8</code> 和 <code>gbk</code> 两种编码方式转换成字节流（<code>utf8_bytes</code> 和 <code>gbk_bytes</code>）。</p>
+</li>
+</ol>
+<figure data-rehype-pretty-code-figure><pre tabindex="0" data-language="python3" data-theme="github-light github-dark"><code data-language="python3" data-theme="github-light github-dark" style="display:grid;"><span data-line><span># 将原始文本编码为 UTF-8 和 GBK 字节流</span></span>
+<span data-line><span>utf8_bytes = original_text.encode('utf-8')</span></span>
+<span data-line><span>gbk_bytes = original_text.encode('gbk')</span></span></code></pre></figure>
+<p><strong>模拟乱码</strong>: 对这两种字节流，使用错误的解码方式进行解码。例如，用 <code>gbk</code> 解码器去读 <code>utf8_bytes</code>。</p>
+<figure data-rehype-pretty-code-figure><pre tabindex="0" data-language="python3" data-theme="github-light github-dark"><code data-language="python3" data-theme="github-light github-dark" style="display:grid;"><span data-line><span>decoded_from_utf8_by_gbk_replaced = utf8_bytes.decode('gbk', errors='replace')</span></span>
+<span data-line><span>print(f&quot;1. 用 GBK 解码 UTF-8: \n   {decoded_from_utf8_by_gbk_replaced}\n&quot;)</span></span></code></pre></figure>
+<p><strong>模拟恢复</strong>: 对于被判定为可恢复的乱码（即用 <code>latin-1</code> 生成的乱码），执行逆向操作。即将乱码字符串用当初错误的编码(<code>latin-1</code>)重新编码成字节流，会发现这个字节流与原始字节流完全相同。再用正确的解码器解码，即可恢复原文。</p>
+<figure data-rehype-pretty-code-figure><pre tabindex="0" data-language="python3" data-theme="github-light github-dark"><code data-language="python3" data-theme="github-light github-dark" style="display:grid;"><span data-line><span># --- 恢复情形 3 (latin-1 解码 UTF-8) ---</span></span>
+<span data-line><span>print(&quot;>>> 正在恢复情形3...&quot;)</span></span>
+<span data-line><span># 1. 将乱码字符串用 latin-1 编码，恢复出原始的 UTF-8 字节流</span></span>
+<span data-line><span>original_utf8_bytes_recovered = decoded_from_utf8_by_latin1.encode('latin-1')</span></span>
+<span data-line><span># 2. 用正确的 UTF-8 解码</span></span>
+<span data-line><span>recovered_text_3 = original_utf8_bytes_recovered.decode('utf-8')</span></span></code></pre></figure>
+<p><strong>验证</strong>: 使用 <code>assert</code> 语句来程序化地验证恢复后的文本是否与原始文本完全一致，确保恢复过程的正确性。</p>
+<p>一开始遇到了问题</p>
+<p>![image-20250704154147925](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250704154147925.png)</p>
+<p><strong>情形5</strong>中遇到的问题：</p>
+<ol>
+<li><strong><code>garbled_step1_5 = utf8_bytes.decode('gbk', errors='replace')</code></strong>
+<ul>
+<li>这一步，程序尝试用 <code>GBK</code> 规则去理解 <code>UTF-8</code> 的字节流。</li>
+<li>当遇到 <code>UTF-8</code> 中某个汉字（例如“这”，字节为 <code>e8 bf 99</code>）的字节序列时，<code>GBK</code> 解码器无法理解，因为它不构成合法的 <code>GBK</code> 编码。</li>
+<li>因为我们设置了 <code>errors='replace'</code>，解码器没有直接崩溃，而是将这个无法理解的字节序列替换成了 Unicode 标准的“替换字符”：<strong>“ (U+FFFD)</strong>。</li>
+<li>所以，执行完这句代码后，得到的字符串 <code>garbled_step1_5</code> 中，真实地包含了 “ 这个字符。 <code>浣犲ソ锛岃繖涓涓栫晫锛屼細鍑虹幇涔辩爜鍚</code> 中间的那个问号菱形就是它。</li>
+</ul>
+</li>
+<li><strong><code>reencoded_bytes_5 = garbled_step1_5.encode('gbk')</code></strong>
+<ul>
+<li><strong>这就是出错的根源</strong>。现在，程序试图将包含 “ 字符的那个乱码字符串，重新用 <code>GBK</code> 编码成字节流。</li>
+<li>但是，<code>GBK</code> 编码字符集中，根本就没有定义 “ (U+FFFD) 这个字符。`GBK 解码器不知道该用哪个字节或字节组合来表示它。</li>
+<li>因此，编码器在这里只能选择“罢工”，抛出 <code>UnicodeEncodeError</code>，：“ <code>\ufffd</code>， <code>gbk</code> 码表中不存在，我无法编码。”</li>
+</ul>
+</li>
+</ol>
+<h3 id="修正与完整复现">修正与完整复现<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#修正与完整复现" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>为了让实验能继续进行下去，观察乱码的最终形态，我们需要在编码时也指定一个错误处理策略，就像解码时一样。我们可以同样使用 <code>errors='replace'</code>，让编码器将无法编码的 “ 字符替换成一个 <code>GBK</code> 编码中存在的“替代品”，通常是一个普通的问号 <code>?</code> (其字节为 <code>0x3f</code>)。</p>
+<figure data-rehype-pretty-code-figure><pre tabindex="0" data-language="python3" data-theme="github-light github-dark"><code data-language="python3" data-theme="github-light github-dark" style="display:grid;"><span data-line><span># -*- coding: utf-8 -*-</span></span>
+<span data-line><span>original_text = &quot;你好，这个世界，会出现乱码吗&quot;</span></span>
+<span data-line><span># --- 编码准备 ---</span></span>
+<span data-line><span>utf8_bytes = original_text.encode('utf-8')</span></span>
+<span data-line><span>gbk_bytes = original_text.encode('gbk')</span></span>
+<span data-line><span>print(f&quot;原始文本: {original_text}&quot;)</span></span>
+<span data-line><span>print(&quot;-&quot; * 50)</span></span>
+<span data-line> </span>
+<span data-line><span># --- 乱码复现 ---</span></span>
+<span data-line> </span>
+<span data-line><span># 情形 1 &amp; 2</span></span>
+<span data-line><span>decoded_from_utf8_by_gbk_replaced = utf8_bytes.decode('gbk', errors='replace')</span></span>
+<span data-line><span>print(f&quot;1. 用 GBK 解码 UTF-8: \n   {decoded_from_utf8_by_gbk_replaced}\n&quot;)</span></span>
+<span data-line> </span>
+<span data-line><span>decoded_from_gbk_by_utf8 = gbk_bytes.decode('utf-8', errors='replace')</span></span>
+<span data-line><span>print(f&quot;2. 用 UTF-8 解码 GBK: \n   {decoded_from_gbk_by_utf8}\n&quot;)</span></span>
+<span data-line> </span>
+<span data-line><span># 情形 3 &amp; 4</span></span>
+<span data-line><span>decoded_from_utf8_by_latin1 = utf8_bytes.decode('latin-1')</span></span>
+<span data-line><span>print(f&quot;3. 用 latin-1 解码 UTF-8: \n   {decoded_from_utf8_by_latin1}\n&quot;)</span></span>
+<span data-line> </span>
+<span data-line><span>decoded_from_gbk_by_latin1 = gbk_bytes.decode('latin-1')</span></span>
+<span data-line><span>print(f&quot;4. 用 latin-1 解码 GBK: \n   {decoded_from_gbk_by_latin1}\n&quot;)</span></span>
+<span data-line> </span>
+<span data-line><span># 情形 5 </span></span>
+<span data-line><span>garbled_step1_5 = utf8_bytes.decode('gbk', errors='replace')</span></span>
+<span data-line><span># 修正之处：在编码时也加入错误处理</span></span>
+<span data-line><span>reencoded_bytes_5 = garbled_step1_5.encode('gbk', errors='replace')</span></span>
+<span data-line><span>final_garbled_5 = reencoded_bytes_5.decode('utf-8', errors='replace')</span></span>
+<span data-line><span>print(f&quot;5. UTF-8 -> GBK -> UTF-8 (修正后): \n   第一步乱码: {garbled_step1_5}\n   最终乱码: {final_garbled_5}\n&quot;)</span></span>
+<span data-line> </span>
+<span data-line> </span>
+<span data-line><span># 情形 6 </span></span>
+<span data-line><span>garbled_step1_6 = gbk_bytes.decode('utf-8', errors='replace')</span></span>
+<span data-line><span># UTF-8可以编码U+FFFD，所以这里不会出错，但最终解码GBK时会出现“锟斤拷”</span></span>
+<span data-line><span>reencoded_bytes_6 = garbled_step1_6.encode('utf-8') </span></span>
+<span data-line><span>final_garbled_6 = reencoded_bytes_6.decode('gbk', errors='replace')</span></span>
+<span data-line><span>print(f&quot;6. GBK -> UTF-8 -> GBK: \n   第一步乱码: {garbled_step1_6}\n   最终乱码: {final_garbled_6}\n&quot;)</span></span>
+<span data-line> </span></code></pre></figure>
+<p>![image-20250704152434156](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250704152434156.png)</p>
+<h3 id="问题回答">问题回答<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#问题回答" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="1-哪些情况可以恢复哪些不可以恢复">1. 哪些情况可以恢复，哪些不可以恢复？<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#1-哪些情况可以恢复哪些不可以恢复" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>在默认“解码之后同时用这种编码方式重新编码并保存”的前提下，数据是否可以恢复，取决于第一次错误解码的过程是否<strong>有损</strong>。</p>
+<ul>
+<li>
+<p><strong>可以恢复的情况：</strong></p>
+<ul>
+<li>
+<p><strong>情形 3 (用 <code>latin-1</code> 解码 <code>UTF-8</code>)</strong>: <strong>可以恢复</strong>。<code>latin-1</code> 编码的特殊之处在于它能表示每一个字节（0x00 - 0xFF）。当它解码一个 <code>UTF-8</code> 字节流时，它只是将每个字节值一一对应到一个 <code>latin-1</code> 字符。这个过程是完全可逆的、无损的。要恢复，只需将乱码字符串用 <code>latin-1</code> 重新编码得到原始的 <code>UTF-8</code> 字节流，再用 <code>UTF-8</code> 正确解码即可。给出代码</p>
+<figure data-rehype-pretty-code-figure><pre tabindex="0" data-language="python3" data-theme="github-light github-dark"><code data-language="python3" data-theme="github-light github-dark" style="display:grid;"><span data-line><span># --- 恢复情形 3 (latin-1 解码 UTF-8) ---</span></span>
+<span data-line><span>print(&quot;>>> 正在恢复情形3...&quot;)</span></span>
+<span data-line><span># 1. 将乱码字符串用 latin-1 编码，恢复出原始的 UTF-8 字节流</span></span>
+<span data-line><span>original_utf8_bytes_recovered = decoded_from_utf8_by_latin1.encode('latin-1')</span></span>
+<span data-line><span># 2. 用正确的 UTF-8 解码</span></span>
+<span data-line><span>recovered_text_3 = original_utf8_bytes_recovered.decode('utf-8')</span></span>
+<span data-line> </span>
+<span data-line><span>print(f&quot;原始乱码: {decoded_from_utf8_by_latin1}&quot;)</span></span>
+<span data-line><span>print(f&quot;恢复文本: {recovered_text_3}&quot;)</span></span>
+<span data-line><span># 通过断言验证恢复是否成功</span></span>
+<span data-line><span>assert recovered_text_3 == original_text</span></span>
+<span data-line><span>print(&quot;情形3 恢复成功！\n&quot;)</span></span></code></pre></figure>
+</li>
+<li>
+<p><strong>情形 4 (用 <code>latin-1</code> 解码 <code>GBK</code>)</strong>: <strong>可以恢复</strong>。原因同上，<code>latin-1</code> 保留了所有的原始 <code>GBK</code> 字节信息。恢复过程也是先用 <code>latin-1</code> 编码回字节流，再用 <code>GBK</code> 解码。给出代码</p>
+</li>
+</ul>
+<figure data-rehype-pretty-code-figure><pre tabindex="0" data-language="python3" data-theme="github-light github-dark"><code data-language="python3" data-theme="github-light github-dark" style="display:grid;"><span data-line><span># --- 恢复情形 4 (latin-1 解码 GBK) ---</span></span>
+<span data-line><span>print(&quot;>>> 正在恢复情形4...&quot;)</span></span>
+<span data-line><span># 1. 将乱码字符串用 latin-1 编码，恢复出原始的 GBK 字节流</span></span>
+<span data-line><span>original_gbk_bytes_recovered = decoded_from_gbk_by_latin1.encode('latin-1')</span></span>
+<span data-line><span># 2. 用正确的 GBK 解码</span></span>
+<span data-line><span>recovered_text_4 = original_gbk_bytes_recovered.decode('gbk')</span></span>
+<span data-line> </span>
+<span data-line><span>print(f&quot;原始乱码: {decoded_from_gbk_by_latin1}&quot;)</span></span>
+<span data-line><span>print(f&quot;恢复文本: {recovered_text_4}&quot;)</span></span>
+<span data-line><span># 通过断言验证恢复是否成功</span></span>
+<span data-line><span>assert recovered_text_4 == original_text</span></span>
+<span data-line><span>print(&quot;情形4 恢复成功！&quot;)</span></span></code></pre></figure>
+<p>结果呈现</p>
+<p>![image-20250704153351595](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250704153351595.png)</p>
+</li>
+<li>
+<p><strong>不可以恢复的情况：</strong></p>
+<ul>
+<li><strong>情形 1 (用 <code>GBK</code> 解码 <code>UTF-8</code>)</strong>: <strong>不可恢复</strong>。<code>UTF-8</code> 的多字节序列（如中文的3个字节）在 <code>GBK</code> 的编码空间里很大概率是无效的。解码器会用一个特殊的替换字符（如 <code>?</code> 或 “）来代替这些无法识别的字节序列。这个替换操作是<strong>有损的</strong>，原始的字节信息已经丢失，无法复原。</li>
+<li><strong>情形 2 (用 <code>UTF-8</code> 解码 <code>GBK</code>)</strong>: <strong>不可恢复</strong>。<code>GBK</code> 的双字节序列通常不符合 <code>UTF-8</code> 的编码规则（例如，字节 <code>0xC4</code> 在 <code>UTF-8</code> 中不是一个有效的起始字节）。因此，<code>UTF-8</code> 解码器同样会将其视为错误并用 “ 替换，造成信息丢失。</li>
+<li><strong>情形 5 (先用 <code>GBK</code> 解码 <code>UTF-8</code>，再…)</strong>: <strong>不可恢复</strong>。第一步已经是不可恢复的了，信息已经丢失。</li>
+<li><strong>情形 6 (先用 <code>UTF-8</code> 解码 <code>GBK</code>，再…)</strong>: <strong>不可恢复</strong>。同上，第一步就造成了不可逆的信息损失。</li>
+</ul>
+</li>
+</ul>
+<h4 id="2-锟斤拷乱码的产生原因解释">2. “锟斤拷”乱码的产生原因解释<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#2-锟斤拷乱码的产生原因解释" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>“锟斤拷”这个经典乱码的产生，其核心在于 <strong>Unicode替换字符 “ (U+FFFD)</strong> 的反复错误编解码。</p>
+<p>过程如下：</p>
+<ol>
+<li>**第一步：产生替换字符` **  当一个程序试图将一个在目标编码中不存在的字符进行保存时（例如，将一个特殊的emoji表情符号保存到只支持 <code>GBK</code> 的数据库），或者在解码时遇到无法识别的字节序列时（如我们上面实验的情形1和2），它会用一个标准的“替换字符” ` (其Unicode码点为 <code>U+FFFD</code>) 来代替这个无法处理的数据。</li>
+<li><strong>第二步：保存为 <code>UTF-8</code> 编码</strong> 这个包含 <code>的文本，如果被一个支持 </code>UTF-8<code> 的系统或程序保存，那么</code> 字符本身就会被 <code>UTF-8</code> 编码规则转换成字节流。<code>U+FFFD</code> 的 <code>UTF-8</code> 编码是三个字节：<strong><code>0xEF 0xBF 0xBD</code></strong>。</li>
+<li><strong>第三步：用 <code>GBK</code> 错误地打开</strong> 现在，另一个程序或用户错误地认为这个文件是 <code>GBK</code> 编码的，并尝试用 <code>GBK</code> 解码器来读取它。此时，解码器看到了 <code>EF BF BD</code> 这样的字节序列。</li>
+<li><strong>第四步：<code>GBK</code> 解码器的翻译</strong> <code>GBK</code> 编码中，高位字节（<code>>0x80</code>）是双字节字符的开始。解码器开始工作：
+<ul>
+<li>它读取第一个字节 <code>0xEF</code>，认为这是一个双字节字符的开始。</li>
+<li>它读取第二个字节 <code>0xBF</code>，与前一个字节配对，形成 <code>0xEFBF</code>。在 <code>GBK</code> 编码表中，<code>0xEFBF</code> 对应的汉字是“<strong>锟</strong>”。</li>
+<li>接着，它读取第三个字节 <code>0xBD</code>，也认为是一个双字节字符的开始。</li>
+<li>如果原文中有多个 “ 字符连在一起（字节流就是 <code>...EF BF BD EF BF BD...</code>），那么解码器会读取下一个字节 <code>0xEF</code>，与 <code>0xBD</code> 配对，形成 <code>0xBDEF</code>。在 <code>GBK</code> 编码表中，<code>0xBDEF</code> 对应的汉字是“<strong>斤</strong>”。</li>
+<li>然后，它读取 <code>0xBF</code> 和 <code>0xBD</code>，配对成 <code>0xBFBD</code>。在 <code>GBK</code> 编码表中，<code>0xBFBD</code> 对应的汉字是“<strong>拷</strong>”。</li>
+<li>这个过程会一直重复，不断地将 <code>EF BF BD</code> 的序列错配成“锟斤拷”。</li>
+</ul>
+</li>
+</ol>
+<p><strong>总结：</strong> “锟斤拷” 本质上是 **<code>UTF-8</code> 编码下的替换字符 `<code> 的字节流 (</code>EF BF BD<code>)，被错误地当成 </code>GBK<code>编码进行解码所产生的特定结果**。这三个汉字之所以是它们，是由</code>GBK<code>的码表和</code>U+FFFD<code>的</code>UTF-8` 字节表示共同决定的巧合。</p>
+<h3 id="task12">task1.2<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#task12" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>用vscode保存为gbk编码，再用utf-8解码打开得到</p>
+<figure data-rehype-pretty-code-figure><pre tabindex="0" data-language="txt" data-theme="github-light github-dark"><code data-language="txt" data-theme="github-light github-dark" style="display:grid;"><span data-line><span>原理类似贝斯五十�?��贝斯二十�?��码其内�?为喝彩声帕帕利马魁北克回音查理均匀帕帕回音祖鲁人狐步探戈�?拉均匀朱丽叶朱丽叶魁北克德尔�?祖鲁人威�?��高尔�?��高尔�?��埃克�?��线喝彩声奥斯卡埃克斯射线祖鲁人麦克回音均匀祖鲁人�?拉德尔�?酒店胜利者高尔夫球公斤胜利者麦克十一月回音胜利者威�?��拉�?��德尔塔公斤印度查理麦克阿尔法印度均匀奥斯卡喝彩声塞</span></span></code></pre></figure>
+<p><strong>中文代号与北约音标字母对应表：</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>中文</th><th>北约音标字母 (NATO)</th><th>代表字母</th></tr></thead><tbody><tr><td>喝彩声 (hècǎishēng)</td><td>Bravo</td><td>B</td></tr><tr><td>帕帕 (pàpà)</td><td>Papa</td><td>P</td></tr><tr><td>利马 (lìmǎ)</td><td>Lima</td><td>L</td></tr><tr><td>魁北克 (kuíběikè)</td><td>Quebec</td><td>Q</td></tr><tr><td>回音 (huíyīn)</td><td>Echo</td><td>E</td></tr><tr><td>查理 (chálǐ)</td><td>Charlie</td><td>C</td></tr><tr><td>均匀 (jūnyún)</td><td>Uniform</td><td>U</td></tr><tr><td>祖鲁人 (zǔlǔrén)</td><td>Zulu</td><td>Z</td></tr><tr><td>狐步 (húbù)</td><td>Foxtrot</td><td>F</td></tr><tr><td>探戈 (tàngē)</td><td>Tango</td><td>T</td></tr><tr><td>塞拉 / 塞拉利昂</td><td>Sierra</td><td>S</td></tr><tr><td>朱丽叶 (zhūlìyè)</td><td>Juliett</td><td>J</td></tr><tr><td>德尔塔 (dé’ěrtǎ)</td><td>Delta</td><td>D</td></tr><tr><td>威士忌 (wēishìjì)</td><td>Whiskey</td><td>W</td></tr><tr><td>高尔夫 / 高尔夫球</td><td>Golf</td><td>G</td></tr><tr><td>埃克斯射线 (āikēsī shèxiàn)</td><td>X-ray</td><td>X</td></tr><tr><td>奥斯卡 (àosīkǎ)</td><td>Oscar</td><td>O</td></tr><tr><td>麦克 (màikè)</td><td>Mike</td><td>M</td></tr><tr><td>酒店 (jiǔdiàn)</td><td>Hotel</td><td>H</td></tr><tr><td>胜利者 (shènglìzhě)</td><td>Victor</td><td>V</td></tr><tr><td>公斤 (gōngjīn)</td><td>Kilo</td><td>K</td></tr><tr><td>十一月 (shíyīyuè)</td><td>November</td><td>N</td></tr><tr><td>印度 (yìndù)</td><td>India</td><td>I</td></tr><tr><td>阿尔法 (ā’ěrfǎ)</td><td>Alfa</td><td>A</td></tr></tbody></table></div>
+<p>得到字母序列为BPLQECUPEZFTSUJJQDZWGGXBOXZMEUZSDHVGKVMNEVWSDKICMAIUOB</p>
+<p>其实是先做的这题，然后卡在这里去网上找了base26和base58，写代码把这几个排列组合了也解不出，所以放弃了（</p>
+<h2 id="22task1">2.2task1<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#22task1" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="三种核心gb系列编码方式">三种核心GB系列编码方式<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#三种核心gb系列编码方式" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="1-gb-2312-80-国家标准">1. GB 2312-80 (国家标准)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#1-gb-2312-80-国家标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ul>
+<li><strong>全称</strong>：《信息交换用汉字编码字符集-基本集》，是中国最早的汉字编码国家标准。</li>
+<li><strong>编码方式</strong>：<strong>双字节定长编码</strong>。</li>
+<li><strong>核心思想</strong>：可以想象一个巨大的二维表格，这个表格有94行（称为“区”）和94列（称为“位”）。一个汉字或符号的位置就由它的“区号”和“位号”唯一确定。
+<ul>
+<li><strong>区位码</strong>：例如，“啊”字位于16区的01位，其“区位码”就是 <code>1601</code>。</li>
+<li><strong>国标码/交换码</strong>：为了在计算机中传输和处理，需要将区位码转换为实际的字节。转换规则是：<strong>将区号和位号分别加上十六进制的 <code>0xA0</code></strong> (即十进制的160)。
+<ul>
+<li><code>第一个字节 = 区号 + 0xA0</code></li>
+<li><code>第二个字节 = 位号 + 0xA0</code></li>
+<li>所以，“啊”字的国标码就是 <code>(0x10 + 0xA0)</code> <code>(0x01 + 0xA0)</code> = <code>0xB0A1</code>。</li>
+</ul>
+</li>
+<li><strong>特点</strong>：
+<ul>
+<li>所有字节的值都在 <code>0xA1</code> 到 <code>0xF7</code> 之间，高位都为1，巧妙地避开了与标准ASCII码（0x00-0x7F）的冲突，使得中英文可以混合处理。</li>
+<li>收录了约6700个汉字和约700个符号，在当时基本满足日常使用。但对于古汉语、部分人名、方言字等则无能为力。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="2-gbk-国家标准扩展">2. GBK (国家标准扩展)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#2-gbk-国家标准扩展" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ul>
+<li><strong>全称</strong>：《汉字内码扩展规范》(K代表“扩展”)，它不是一个正式的国家标准，而是微软制定的一个技术规范，但因其广泛应用而成为事实标准。</li>
+<li><strong>编码方式</strong>：<strong>双字节定长编码</strong>。</li>
+<li><strong>核心思想</strong>：在完全保留GB 2312所有内容的基础上，利用其未使用的编码空间来容纳更多的字符。
+<ul>
+<li><strong>扩展方式</strong>：GB 2312的两个字节都在 <code>0xA1</code> - <code>0xF7</code> 范围内。GBK打破了这个限制，极大地扩展了可用编码空间：
+<ul>
+<li><strong>第一个字节</strong>：范围从 <code>0x81</code> 扩展到 <code>0xFE</code>。</li>
+<li><strong>第二个字节</strong>：范围从 <code>0x40</code> 扩展到 <code>0xFE</code>（不包括 <code>0x7F</code>）。</li>
+</ul>
+</li>
+<li><strong>特点</strong>：
+<ul>
+<li>收录了超过21000个汉字，包含了繁体字和日、韩汉字，基本解决了GB 2312字数不足的问题。</li>
+<li>它的设计完全以兼容GB 2312为前提。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="3-gb-18030-2022-现行国家强制标准">3. GB 18030-2022 (现行国家强制标准)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#3-gb-18030-2022-现行国家强制标准" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ul>
+<li><strong>全称</strong>：《信息技术中文编码字符集》，是中国现行最新的、强制性的国家标准。</li>
+<li><strong>编码方式</strong>：<strong>变长编码（1、2或4字节）</strong>。这是它与前两者最根本的区别。</li>
+<li><strong>核心思想</strong>：目标是收录Unicode标准中的所有字符，实现与国际标准的完全对接，同时保持对GBK和GB 2312的兼容。
+<ul>
+<li><strong>编码结构</strong>：
+<ul>
+<li><strong>单字节</strong>：与ASCII完全一致 (<code>0x00</code> - <code>0x7F</code>)。</li>
+<li><strong>双字节</strong>：<strong>完全重用GBK的编码方案</strong>。所有在GBK中有效的双字节编码，在GB 18030中都代表同一个字符。</li>
+<li><strong>四字节</strong>：为映射Unicode中新增的大量字符而设计。其结构为 <code>[0x81-0xFE]</code> <code>[0x30-0x39]</code> <code>[0x81-0xFE]</code> <code>[0x30-0x39]</code>。解码器可以通过第二个字节是否在 <code>0x30</code>-<code>0x39</code> 范围内，来判断这是一个双字节字符还是四字节字符的开始。</li>
+</ul>
+</li>
+<li><strong>特点</strong>：
+<ul>
+<li>编码空间巨大，理论上可表示超过160万个字符。</li>
+<li>是GBK的超集，也是Unicode的实现方式之一（类似于UTF-8，但编码方式不同）。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<hr/>
+<h3 id="gb系列三个版本的兼容性实现">GB系列三个版本的兼容性实现<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#gb系列三个版本的兼容性实现" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>GB系列编码的演进完美体现了“<strong>向下兼容</strong>”（Backward Compatibility）的设计哲学，即新版本必须能正确处理旧版本的数据。其实现方式可以概括为“<strong>保留并扩展</strong>”。</p>
+<p>这就像盖房子：</p>
+<ul>
+<li><strong>GB 2312</strong> 是最初建好的一栋7000个房间的<strong>主楼</strong>。</li>
+<li><strong>GBK</strong> 没有拆除主楼，而是在主楼旁边<strong>加盖了一栋更大的附楼</strong>，并将两者连接起来。从GBK的视角看，GB 2312的主楼是其一部分。</li>
+<li><strong>GB 18030</strong> 则是在GBK（主楼+附楼）的基础上，<strong>又扩建了一片巨大的新园区</strong>（四字节部分），同时确保了通往旧楼和附楼的道路（单字节ASCII和双字节GBK）完全畅通无阻。</li>
+</ul>
+<p><img src="https://i-blog.csdnimg.cn/direct/223e9fbcd09d46e8ab1187ffb04f6348.webp" alt="img"/></p>
+<p>具体的实现机制如下：</p>
+<ol>
+<li><strong>编码空间的超集设计</strong>：
+<ul>
+<li><strong>GBK 对 GB 2312 的兼容</strong>：GBK的编码空间完全包含了GB 2312的编码空间。任何一个有效的GB 2312双字节编码（如<code>0xB0A1</code>），在GBK的规则下，也表示完全相同的字符。GBK只是利用了GB 2312未定义的字节范围（如第一个字节小于<code>0xA1</code>或第二个字节小于<code>0xA1</code>）来定义新字符，从而避免了冲突。</li>
+</ul>
+</li>
+<li><strong>编码结构的继承与区分</strong>：
+<ul>
+<li><strong>GB 18030 对 GBK 的兼容</strong>：GB 18030直接规定，其双字节部分的编码规则与GBK<strong>完全相同</strong>。</li>
+<li><strong>区分机制</strong>：GB 18030通过其变长编码的特性，可以明确区分不同长度的字符，从而实现共存。一个GB 18030解码器读取字节流时：
+<ul>
+<li>如果字节在 <code>0x00-0x7F</code>，它知道这是一个单字节ASCII字符。</li>
+<li>如果字节在 <code>0x81-0xFE</code>，它知道这是一个多字节字符的开始，需要读取下一个字节。</li>
+<li>读取第二个字节后，如果它在 <code>0x40-0xFE</code> 范围，解码器就知道这是一个<strong>双字节GBK字符</strong>；如果它在 <code>0x30-0x39</code> 范围，解码器就知道这是一个<strong>四字节字符</strong>，并会继续读取后两个字节。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<p>通过这种“<strong>保留旧规则，增加新规则</strong>”并确保新旧规则之间有明确区分的巧妙设计，GB系列编码成功地在近30年的发展中，从一个几千字的“基本集”演变成了一个能容纳上百万字符、与Unicode对齐的庞大体系，同时保证了历史数据的可用性和延续性。</p>
+<h2 id="22task2字">2.2task2字<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#22task2字" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p><strong>实验原理：</strong> 本次挑战是一个典型的多层解码谜题，其核心原理结合了两种技术：</p>
+<ol>
+<li><strong>同形异义字隐写术 (Homoglyph Steganography):</strong> 利用两种在视觉上极其相似、但在计算机内部编码（Unicode码位）完全不同的字符，来隐藏二进制信息（0和1）。这是信息藏匿的第一层。</li>
+<li><strong>自定义二进制编码:</strong> 从文本中提取出的原始二进制流并未采用如ASCII或UTF-8等标准编码，而是使用了一种为本题目量身定制的特殊编码方案。该方案的关键点在于非标准的分割长度（7位）、特定的数值变换和不常见的字符集（GBK）。这是信息解码的第二层。</li>
+</ol>
+<h3 id="实验步骤"><strong>实验步骤：</strong><a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#实验步骤" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="步骤一从文本中提取隐藏的二进制流"><strong>步骤一：从文本中提取隐藏的二进制流</strong><a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#步骤一从文本中提取隐藏的二进制流" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>此步骤对应step1.py，目的是完成隐写信息的提取。</p>
+<ol>
+<li><strong>数据输入：</strong> 首先，程序读取名为 <code>字.txt</code> 的文本文件。该文件包含一段长文本，其中混用了两种类型的汉字：
+<ul>
+<li><strong>普通汉字：</strong> 来自标准的CJK（中日韩）统一表意文字区段。</li>
+<li><strong>特殊汉字：</strong> 来自康熙部首（Kangxi Radicals）区段，其外观与前者几乎无法用肉眼区分。</li>
+</ul>
+</li>
+<li><strong>建立映射规则：</strong> 程序内置了两份字符列表（<code>normal_chars</code> 和 <code>special_chars</code>），并以此为依据建立了一个二进制映射规则：
+<ul>
+<li>当在文本中遇到<strong>普通汉字</strong>时，将其映射为比特 <code>0</code>。</li>
+<li>当在文本中遇到<strong>特殊汉字</strong>时，将其映射为比特 <code>1</code>。</li>
+</ul>
+</li>
+<li><strong>信息提取：</strong> 程序逐字遍历从文件中读取的全部文本内容。根据上一步建立的映射规则，将匹配到的字符逐一转换为 <code>0</code> 或 <code>1</code>，并按顺序拼接起来。</li>
+<li><strong>初步输出：</strong> 此步骤完成后，程序输出了一个由 <code>0</code> 和 <code>1</code> 组成的长字符串，即原始的、经过隐写处理的二进制信息流，以及它的总长度。</li>
+</ol>
+<h4 id="步骤二解码二进制流还原最终信息"><strong>步骤二：解码二进制流，还原最终信息</strong><a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#步骤二解码二进制流还原最终信息" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>此步骤对应step2.py，是对第一步得到的二进制流进行“解密”。</p>
+<ol>
+<li><strong>数据分割：</strong> 程序并非按照常规的8位（一字节）来分割二进制流，而是以 <strong>7位</strong> 为一个基本单元进行处理。这是解开谜题的第一个关键。</li>
+<li><strong>终止符判断：</strong> 程序在循环中检查每个7位单元。如果一个单元的二进制值是 <code>1111111</code>，则判定为信息结束的标志，解码过程立即停止。这说明二进制流的末尾部分可能不包含有效信息。</li>
+<li><strong>数值变换：</strong> 对于每一个有效的7位单元，程序执行了一个核心的数学变换。它将这个7位单元所代表的数值，加上一个固定的偏移量 <code>0b10100000</code>（即十进制的160，十六进制的<code>A0</code>）。
+<ul>
+<li><code>新字节 = 原始7位数值 + 160</code></li>
+</ul>
+</li>
+<li><strong>编码解码：</strong> 经过数值变换后，得到一个新的字节（byte）序列。此序列并非ASCII或UTF-8编码。后使用了 <code>.decode(&quot;gbk&quot;)</code>，这些经过变换的字节需要使用<strong>GBK编码</strong>来进行最终解码。</li>
+</ol>
+<p><strong>实验结果：</strong> 第一步的代码获取二进制流和长度为374与题目提示符合，说明对了，然后再进行第二步的代码获得flag。</p>
+<p>![image-20250703203722929](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250703203722929.png)</p>
+<p>![image-20250703203752775](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250703203752775.png)</p>
+<h3 id="31">3.1<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#31" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>![image-20250703222618243](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250703222618243.png)</p>
+<p>![image-20250703224438649](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250703224438649.png)</p>
+<p><strong>协议分析 (<code>Protocol Hierarchy</code>)</strong>:</p>
+<ul>
+<li><strong>97.4% 的流量是 TCP 协议</strong>。</li>
+<li>在 TCP 协议下，有一个巨大的 <code>Data</code> 部分（占总字节数的 90.2%）。这说明 Wireshark 无法识别跑在 TCP 上层的具体应用协议，这恰恰印证了这是厂商的私有协议（也就是我们正在寻找的软总线协议）。<strong>所以我们的主战场将是 TCP 的数据部分</strong>。</li>
+</ul>
+<p><strong>端点分析 (<code>Endpoints</code>)</strong>:</p>
+<ul>
+<li>在所有 IP 地址中，<code>192.168.3.208</code> 和 <code>192.168.3.209</code> 这两个地址的流量占据了绝对主导地位（各自收发了约 7600 个包，总计 6MB 数据）。</li>
+<li><strong>这毫无疑问就是进行通信的两个目标设备</strong>。</li>
+</ul>
+<p>![image-20250703225059610](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250703225059610.png)</p>
+<p>![image-20250703230013984](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250703230013984.png)</p>
+<p>带fake的内容这些应该是混淆的包内容，需要过滤</p>
+<p>希望过滤带fake和FAKE的数据包。输入以下表达式</p>
+<pre><code>not (tcp.payload contains &quot;fake&quot; or tcp.payload contains &quot;FAKE&quot;)
+</code></pre>
+<h4 id="1-设备名字-device-name"><strong>1. 设备名字 (Device Name)</strong><a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#1-设备名字-device-name" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ul>
+<li>
+<p><strong>线索</strong>: 题目提到“两个设备的名字是相同的”。</p>
+<p>截图可以看到</p>
+<p>![image-20250704100339160](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250704100339160.png)</p>
+</li>
+<li>
+<p><strong>答案</strong>: <code>OpenHarmony_3.2</code></p>
+</li>
+</ul>
+<h4 id="2-应用程序-application"><strong>2. 应用程序 (Application)</strong><a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#2-应用程序-application" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>![image-20250704100543607](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250704100543607.png)</p>
+<ul>
+<li><strong>答案</strong>: calculator</li>
+</ul>
+<h4 id="3-分布式设备管理组件版本号-dmversion"><strong>3. 分布式设备管理组件版本号 (dmVersion)</strong><a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#3-分布式设备管理组件版本号-dmversion" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>![image-20250704101946050](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250704101946050.png)</p>
+<ul>
+<li><strong>答案</strong>: <code>5.0.1</code></li>
+</ul>
+<h4 id="4-软总线版本号-soft-bus-version"><strong>4. 软总线版本号 (Soft Bus Version)</strong><a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#4-软总线版本号-soft-bus-version" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>![image-20250704102041557](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250704102041557.png)</p>
+<ul>
+<li><strong>答案</strong>: <code>101</code></li>
+</ul>
+<p>OpenHarmony_3.2_calculator_5.0.1_101转化为md5即可</p>
+<p>![image-20250704102815073](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250704102815073.png)</p>
+<h2 id="bonus-zjuwlan">bonus zjuwlan<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#bonus-zjuwlan" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="镜像文件提取"><strong>镜像文件提取</strong><a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#镜像文件提取" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>收到 <code>godspeed.img</code> 文件，判断其为磁盘镜像而非图片文件。</li>
+<li>使用 <code>7z x godspeed.img</code> 命令，成功从镜像中提取出文件内容。</li>
+<li>提取后，发现两个关键目标：网络流量包 <code>crack_zju-01.cap</code> 和一个隐藏的 <code>Vim</code> 交换文件 <code>.password.txt.swp</code>。</li>
+</ul>
+<p>![image-20250704112034395](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250704112034395.png)</p>
+<h3 id="关键线索挖掘"><strong>关键线索挖掘</strong><a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#关键线索挖掘" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>识别出 <code>.password.txt.swp</code> 是由于编辑器非正常退出而遗留的信息泄露文件。</li>
+<li>执行 <code>vim -r .password.txt.swp</code> 命令，成功恢复了交换文件中包含的原始文本。</li>
+<li>将恢复的内容另存为新的文本文件 <code>mima.txt</code>，作为下一步破解所需的专用密码字典。</li>
+</ul>
+<h3 id="网络流量破解"><strong>网络流量破解</strong><a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#网络流量破解" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li>通过 <code>Wireshark</code> 初步分析 <code>crack_zju-01.cap</code>，确认其中包含一个完整的 WPA 四次握手（EAPOL 报文），明确了破解目标。</li>
+</ul>
+<p>![image-20250704113442729](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250704113442729.png)</p>
+<ul>
+<li>调用 <code>aircrack-ng</code> 工具，并指定上一步获取的 <code>mima.txt</code> 文件作为密码字典，对握手包发起破解。</li>
+<li>执行核心破解命令：<code>aircrack-ng crack_zju-01.cap -w mima.txt</code>。</li>
+</ul>
+<p>![image-20250704112715454](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250704112715454.png)</p>
+<p>![image-20250704113654835](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250704113654835.png)</p>
+<h3 id="实验结果"><strong>实验结果</strong><a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#实验结果" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p><code>aircrack-ng</code> 工具利用提供的密码字典 <code>mima.txt</code> 迅速完成了破解，成功找到了 WPA 网络的密钥。</p>
+<ul>
+<li><strong>最终密钥:</strong> <code>0YcWPeLMBp</code></li>
+<li><strong>对应 Flag :</strong> <code>AAA{0YcWPeLMBp}</code></li>
+</ul>
+<p>![image-20250704113257410](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250704113257410.png)</p>
+<h2 id="suggestions">suggestions<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#suggestions" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>建议NATO26任务增加提示/中间成果检验，比如给一个程序检验初步根据音标对应得出的字母串是否正确，这个题感觉有点阴。。。QAQ</p></article><hr/><div class="page-footer"></div></div><div class="right sidebar"><div class="graph"><h3>Graph View</h3><div class="graph-outer"><div class="graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:1,&quot;scale&quot;:1.1,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.3,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:false,&quot;enableRadial&quot;:false}"></div><button class="global-graph-icon" aria-label="Global Graph"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 55 55" fill="currentColor" xml:space="preserve"><path d="M49,0c-3.309,0-6,2.691-6,6c0,1.035,0.263,2.009,0.726,2.86l-9.829,9.829C32.542,17.634,30.846,17,29,17
+                s-3.542,0.634-4.898,1.688l-7.669-7.669C16.785,10.424,17,9.74,17,9c0-2.206-1.794-4-4-4S9,6.794,9,9s1.794,4,4,4
+                c0.74,0,1.424-0.215,2.019-0.567l7.669,7.669C21.634,21.458,21,23.154,21,25s0.634,3.542,1.688,4.897L10.024,42.562
+                C8.958,41.595,7.549,41,6,41c-3.309,0-6,2.691-6,6s2.691,6,6,6s6-2.691,6-6c0-1.035-0.263-2.009-0.726-2.86l12.829-12.829
+                c1.106,0.86,2.44,1.436,3.898,1.619v10.16c-2.833,0.478-5,2.942-5,5.91c0,3.309,2.691,6,6,6s6-2.691,6-6c0-2.967-2.167-5.431-5-5.91
+                v-10.16c1.458-0.183,2.792-0.759,3.898-1.619l7.669,7.669C41.215,39.576,41,40.26,41,41c0,2.206,1.794,4,4,4s4-1.794,4-4
+                s-1.794-4-4-4c-0.74,0-1.424,0.215-2.019,0.567l-7.669-7.669C36.366,28.542,37,26.846,37,25s-0.634-3.542-1.688-4.897l9.665-9.665
+                C46.042,11.405,47.451,12,49,12c3.309,0,6-2.691,6-6S52.309,0,49,0z M11,9c0-1.103,0.897-2,2-2s2,0.897,2,2s-0.897,2-2,2
+                S11,10.103,11,9z M6,51c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S8.206,51,6,51z M33,49c0,2.206-1.794,4-4,4s-4-1.794-4-4
+                s1.794-4,4-4S33,46.794,33,49z M29,31c-3.309,0-6-2.691-6-6s2.691-6,6-6s6,2.691,6,6S32.309,31,29,31z M47,41c0,1.103-0.897,2-2,2
+                s-2-0.897-2-2s0.897-2,2-2S47,39.897,47,41z M49,10c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S51.206,10,49,10z"></path></svg></button></div><div class="global-graph-outer"><div class="global-graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:-1,&quot;scale&quot;:0.9,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.2,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:true,&quot;enableRadial&quot;:true}"></div></div></div><div class="toc desktop-only"><button type="button" class="toc-header" aria-controls="toc-content" aria-expanded="true"><h3>Table of Contents</h3><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><ul class="toc-content overflow" id="list-1"><li class="depth-0"><a href="#task11" data-for="task11">Task1.1</a></li><li class="depth-1"><a href="#修正与完整复现" data-for="修正与完整复现">修正与完整复现</a></li><li class="depth-1"><a href="#问题回答" data-for="问题回答">问题回答</a></li><li class="depth-1"><a href="#task12" data-for="task12">task1.2</a></li><li class="depth-0"><a href="#22task1" data-for="22task1">2.2task1</a></li><li class="depth-1"><a href="#三种核心gb系列编码方式" data-for="三种核心gb系列编码方式">三种核心GB系列编码方式</a></li><li class="depth-1"><a href="#gb系列三个版本的兼容性实现" data-for="gb系列三个版本的兼容性实现">GB系列三个版本的兼容性实现</a></li><li class="depth-0"><a href="#22task2字" data-for="22task2字">2.2task2字</a></li><li class="depth-1"><a href="#实验步骤" data-for="实验步骤">实验步骤：</a></li><li class="depth-1"><a href="#31" data-for="31">3.1</a></li><li class="depth-0"><a href="#bonus-zjuwlan" data-for="bonus-zjuwlan">bonus zjuwlan</a></li><li class="depth-1"><a href="#镜像文件提取" data-for="镜像文件提取">镜像文件提取</a></li><li class="depth-1"><a href="#关键线索挖掘" data-for="关键线索挖掘">关键线索挖掘</a></li><li class="depth-1"><a href="#网络流量破解" data-for="网络流量破解">网络流量破解</a></li><li class="depth-1"><a href="#实验结果" data-for="实验结果">实验结果</a></li><li class="depth-0"><a href="#suggestions" data-for="suggestions">suggestions</a></li><li class="overflow-end"></li></ul></div></div><footer class><p>Created with <a href="https://quartz.jzhao.xyz/">Quartz v4.5.1</a> © 2025</p><ul><li><a href="https://github.com/jackyzha0/quartz">GitHub</a></li><li><a href="https://discord.gg/cRFFHYye7t">Discord Community</a></li></ul></footer></div></div></body><script type="application/javascript">function n(){let t=this.parentElement;t.classList.toggle("is-collapsed");let e=t.getElementsByClassName("callout-content")[0];if(!e)return;let l=t.classList.contains("is-collapsed");e.style.gridTemplateRows=l?"0fr":"1fr"}function c(){let t=document.getElementsByClassName("callout is-collapsible");for(let e of t){let l=e.getElementsByClassName("callout-title")[0],s=e.getElementsByClassName("callout-content")[0];if(!l||!s)continue;l.addEventListener("click",n),window.addCleanup(()=>l.removeEventListener("click",n));let o=e.classList.contains("is-collapsed");s.style.gridTemplateRows=o?"0fr":"1fr"}}document.addEventListener("nav",c);
+</script><script type="module">function f(i,e){if(!i)return;function r(o){o.target===this&&(o.preventDefault(),o.stopPropagation(),e())}function t(o){o.key.startsWith("Esc")&&(o.preventDefault(),e())}i?.addEventListener("click",r),window.addCleanup(()=>i?.removeEventListener("click",r)),document.addEventListener("keydown",t),window.addCleanup(()=>document.removeEventListener("keydown",t))}function y(i){for(;i.firstChild;)i.removeChild(i.firstChild)}var h=class{constructor(e,r){this.container=e;this.content=r;this.setupEventListeners(),this.setupNavigationControls(),this.resetTransform()}isDragging=!1;startPan={x:0,y:0};currentPan={x:0,y:0};scale=1;MIN_SCALE=.5;MAX_SCALE=3;cleanups=[];setupEventListeners(){let e=this.onMouseDown.bind(this),r=this.onMouseMove.bind(this),t=this.onMouseUp.bind(this),o=this.resetTransform.bind(this);this.container.addEventListener("mousedown",e),document.addEventListener("mousemove",r),document.addEventListener("mouseup",t),window.addEventListener("resize",o),this.cleanups.push(()=>this.container.removeEventListener("mousedown",e),()=>document.removeEventListener("mousemove",r),()=>document.removeEventListener("mouseup",t),()=>window.removeEventListener("resize",o))}cleanup(){for(let e of this.cleanups)e()}setupNavigationControls(){let e=document.createElement("div");e.className="mermaid-controls";let r=this.createButton("+",()=>this.zoom(.1)),t=this.createButton("-",()=>this.zoom(-.1)),o=this.createButton("Reset",()=>this.resetTransform());e.appendChild(t),e.appendChild(o),e.appendChild(r),this.container.appendChild(e)}createButton(e,r){let t=document.createElement("button");return t.textContent=e,t.className="mermaid-control-button",t.addEventListener("click",r),window.addCleanup(()=>t.removeEventListener("click",r)),t}onMouseDown(e){e.button===0&&(this.isDragging=!0,this.startPan={x:e.clientX-this.currentPan.x,y:e.clientY-this.currentPan.y},this.container.style.cursor="grabbing")}onMouseMove(e){this.isDragging&&(e.preventDefault(),this.currentPan={x:e.clientX-this.startPan.x,y:e.clientY-this.startPan.y},this.updateTransform())}onMouseUp(){this.isDragging=!1,this.container.style.cursor="grab"}zoom(e){let r=Math.min(Math.max(this.scale+e,this.MIN_SCALE),this.MAX_SCALE),t=this.content.getBoundingClientRect(),o=t.width/2,n=t.height/2,c=r-this.scale;this.currentPan.x-=o*c,this.currentPan.y-=n*c,this.scale=r,this.updateTransform()}updateTransform(){this.content.style.transform=`translate(${this.currentPan.x}px, ${this.currentPan.y}px) scale(${this.scale})`}resetTransform(){this.scale=1;let e=this.content.querySelector("svg");this.currentPan={x:e.getBoundingClientRect().width/2,y:e.getBoundingClientRect().height/2},this.updateTransform()}},C=["--secondary","--tertiary","--gray","--light","--lightgray","--highlight","--dark","--darkgray","--codeFont"],E;document.addEventListener("nav",async()=>{let e=document.querySelector(".center").querySelectorAll("code.mermaid");if(e.length===0)return;E||=await import("https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.4.0/mermaid.esm.min.mjs");let r=E.default,t=new WeakMap;for(let n of e)t.set(n,n.innerText);async function o(){for(let s of e){s.removeAttribute("data-processed");let a=t.get(s);a&&(s.innerHTML=a)}let n=C.reduce((s,a)=>(s[a]=window.getComputedStyle(document.documentElement).getPropertyValue(a),s),{}),c=document.documentElement.getAttribute("saved-theme")==="dark";r.initialize({startOnLoad:!1,securityLevel:"loose",theme:c?"dark":"base",themeVariables:{fontFamily:n["--codeFont"],primaryColor:n["--light"],primaryTextColor:n["--darkgray"],primaryBorderColor:n["--tertiary"],lineColor:n["--darkgray"],secondaryColor:n["--secondary"],tertiaryColor:n["--tertiary"],clusterBkg:n["--light"],edgeLabelBackground:n["--highlight"]}}),await r.run({nodes:e})}await o(),document.addEventListener("themechange",o),window.addCleanup(()=>document.removeEventListener("themechange",o));for(let n=0;n<e.length;n++){let v=function(){let g=l.querySelector("#mermaid-space"),m=l.querySelector(".mermaid-content");if(!m)return;y(m);let w=c.querySelector("svg").cloneNode(!0);m.appendChild(w),l.classList.add("active"),g.style.cursor="grab",u=new h(g,m)},M=function(){l.classList.remove("active"),u?.cleanup(),u=null},c=e[n],s=c.parentElement,a=s.querySelector(".clipboard-button"),d=s.querySelector(".expand-button"),p=window.getComputedStyle(a),L=a.offsetWidth+parseFloat(p.marginLeft||"0")+parseFloat(p.marginRight||"0");d.style.right=`calc(${L}px + 0.3rem)`,s.prepend(d);let l=s.querySelector("#mermaid-container");if(!l)return;let u=null;d.addEventListener("click",v),f(l,M),window.addCleanup(()=>{u?.cleanup(),d.removeEventListener("click",v)})}});
+</script><script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" type="application/javascript"></script><script type="application/javascript">
+        const socket = new WebSocket('ws://localhost:3001')
+        // reload(true) ensures resources like images and scripts are fetched again in firefox
+        socket.addEventListener('message', () => document.location.reload(true))
+      </script><script src="../postscript.js" type="module"></script></html>

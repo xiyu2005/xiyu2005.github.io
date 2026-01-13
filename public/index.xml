@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+    <channel>
+      <title>Quartz 4</title>
+      <link>https://quartz.jzhao.xyz</link>
+      <description>Last 10 notes on Quartz 4</description>
+      <generator>Quartz -- quartz.jzhao.xyz</generator>
+      <item>
+    <title>Application</title>
+    <link>https://quartz.jzhao.xyz/Users/kaisenye/Library/Application</link>
+    <guid>https://quartz.jzhao.xyz/Users/kaisenye/Library/Application</guid>
+    <description><![CDATA[  ]]></description>
+    <pubDate>Fri, 18 Jul 2025 14:46:26 GMT</pubDate>
+  </item><item>
+    <title>ctf</title>
+    <link>https://quartz.jzhao.xyz/ctf%E7%9F%AD%E5%AD%A6%E6%9C%9F%E7%95%99%E6%A1%A3/ctf</link>
+    <guid>https://quartz.jzhao.xyz/ctf%E7%9F%AD%E5%AD%A6%E6%9C%9F%E7%95%99%E6%A1%A3/ctf</guid>
+    <description><![CDATA[ Lab0_all_Report [toc] 叶凯森 3230100127 农业工程 1 Prerequisites 1.1 Challenge1 我有一台windows+linux双系统的电脑和一台mac（） 展示若干个shell命令用法： ![image-20250525184736346](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250525184736346.png) 上面列出了当前目录（home）下的文件，进入桌面，创建了一个hello.py文件，用nano编辑器进行编辑内容，并且用p... ]]></description>
+    <pubDate>Fri, 18 Jul 2025 14:46:26 GMT</pubDate>
+  </item><item>
+    <title>lab1misc</title>
+    <link>https://quartz.jzhao.xyz/ctf%E7%9F%AD%E5%AD%A6%E6%9C%9F%E7%95%99%E6%A1%A3/lab1misc</link>
+    <guid>https://quartz.jzhao.xyz/ctf%E7%9F%AD%E5%AD%A6%E6%9C%9F%E7%95%99%E6%A1%A3/lab1misc</guid>
+    <description><![CDATA[ Task1.1 编写代码编写代码的总体思路 实验的核心是模拟“用A编码，用B解码”的过程。在计算机中，文本在内存里是以统一的、抽象的Unicode码点存在的（例如，汉字“你”是U+4F60）。但当文本需要被存储或传输时，就必须通过一种具体的**编码（Encode）规则将其转换为字节序列（Byte Stream）。当需要再次读取和显示文本时，则需要通过相应的解码（Decode）**规则将字节序列转换回内存中的Unicode字符。 乱码的产生，正是解码规则与编码规则不匹配导致的。我的编程思路遵循以下步骤： 定义基准: 创建一个包含中文字符的原始文本字符串 original_text 作为我们所有实... ]]></description>
+    <pubDate>Fri, 18 Jul 2025 14:46:26 GMT</pubDate>
+  </item><item>
+    <title>lab1web</title>
+    <link>https://quartz.jzhao.xyz/ctf%E7%9F%AD%E5%AD%A6%E6%9C%9F%E7%95%99%E6%A1%A3/lab1web</link>
+    <guid>https://quartz.jzhao.xyz/ctf%E7%9F%AD%E5%AD%A6%E6%9C%9F%E7%95%99%E6%A1%A3/lab1web</guid>
+    <description><![CDATA[ Lab1Web Yekaisen task1 由于在校外，用atrust进行vpn连接，结果有一些特殊，进行了分析研究。 ![image-20250703103131408](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250703103131408.png) 校内DNS 返回的IP: 198.18.0.3(这是一个特殊用途的IP) 校外公网DNS返回的IP: 122.225.214.239 等 (CDN服务器的IP) 现在我们来分析直接访问这些IP地址的情况。 1. ]]></description>
+    <pubDate>Fri, 18 Jul 2025 14:46:26 GMT</pubDate>
+  </item><item>
+    <title>index</title>
+    <link>https://quartz.jzhao.xyz/</link>
+    <guid>https://quartz.jzhao.xyz/</guid>
+    <description><![CDATA[ 欢迎来到我的数字花园 这是我的首页！. ]]></description>
+    <pubDate>Fri, 18 Jul 2025 14:46:26 GMT</pubDate>
+  </item><item>
+    <title>readme</title>
+    <link>https://quartz.jzhao.xyz/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%E5%89%8D%E6%B2%BF/codelab1+4/codelab1/readme</link>
+    <guid>https://quartz.jzhao.xyz/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%E5%89%8D%E6%B2%BF/codelab1+4/codelab1/readme</guid>
+    <description><![CDATA[ 实验环境 macOS. ]]></description>
+    <pubDate>Fri, 18 Jul 2025 14:46:26 GMT</pubDate>
+  </item><item>
+    <title>实验报告</title>
+    <link>https://quartz.jzhao.xyz/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%E5%89%8D%E6%B2%BF/%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A</link>
+    <guid>https://quartz.jzhao.xyz/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%E5%89%8D%E6%B2%BF/%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A</guid>
+    <description><![CDATA[ 实验报告lab1 叶凯森 ![image-20250616103529226](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250616103529226.png) 第一次的代码爆了很多runtimewarining，根源是梯度爆炸 (Exploding Gradients)。 在反向传播过程中，梯度会逐层传递和累积。如果梯度值持续大于1，经过多层网络后，它会以指数级增长，变得异常巨大。这个巨大的梯度在更新权重时，会导致权重也变得异常巨大（即overflow），最终导致整个计算过程充满 inf 和... ]]></description>
+    <pubDate>Fri, 18 Jul 2025 14:46:26 GMT</pubDate>
+  </item><item>
+    <title>Readme</title>
+    <link>https://quartz.jzhao.xyz/%E6%95%B0%E5%AD%A6%E5%BB%BA%E6%A8%A1/%E6%A8%A1%E5%9E%8B%E4%BB%A3%E7%A0%81/Readme</link>
+    <guid>https://quartz.jzhao.xyz/%E6%95%B0%E5%AD%A6%E5%BB%BA%E6%A8%A1/%E6%A8%A1%E5%9E%8B%E4%BB%A3%E7%A0%81/Readme</guid>
+    <description><![CDATA[ 先在总体文件夹下创建并激活虚拟环境 python3 -m venv myenv source myenv/bin/activate 再安装依赖 pip install -r requirements.txt 然后在虚拟环境下运行即可。 Q1.py为第一小问的代码（运行小于1min） Q2.py为第二小问的代码（运行约2min） Q_sensitivity_error_analysis.py为第三小问的代码（运行时间约1min） problem1_results_risk_calc为第一题结果 问题2分析结果为第二题结果 灵敏度与误差分析结果为第三题结果 A题附件的内容与位置是必要的，因为动过了... ]]></description>
+    <pubDate>Fri, 18 Jul 2025 14:46:26 GMT</pubDate>
+  </item><item>
+    <title>材料力学</title>
+    <link>https://quartz.jzhao.xyz/%E6%9D%90%E6%96%99%E5%8A%9B%E5%AD%A6%E7%95%99%E6%A1%A3/%E6%9D%90%E6%96%99%E5%8A%9B%E5%AD%A6</link>
+    <guid>https://quartz.jzhao.xyz/%E6%9D%90%E6%96%99%E5%8A%9B%E5%AD%A6%E7%95%99%E6%A1%A3/%E6%9D%90%E6%96%99%E5%8A%9B%E5%AD%A6</guid>
+    <description><![CDATA[ 应力应变曲线 ![image-20250608144503897](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250608144503897.png) 屈服极限\sigma_s和强度极限\sigma_b都是材料强度的重要指标。 在强度计算中，塑形材料用屈服极限\sigma_s,脆性材料用强度极限\sigma_b。 ![image-20250608144731240](/Users/kaisenye/Library/Application Support/typora-user-images/im... ]]></description>
+    <pubDate>Fri, 18 Jul 2025 14:46:26 GMT</pubDate>
+  </item>
+    </channel>
+  </rss>

