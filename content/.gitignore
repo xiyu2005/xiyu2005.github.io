@@ -1,0 +1,22 @@
+# 忽略 Obsidian 的配置文件
+.obsidian/
+
+# 忽略 Mac 系统文件
+.DS_Store
+
+# 忽略所有 Office 文件
+*.pptx
+*.ppt
+*.docx
+*.doc
+*.xlsx
+*.xls
+
+# 忽略所有 PDF 和压缩文件
+*.zip
+*.rar
+
+# 忽略所有视频和音频文件
+*.mp4
+*.mov
+*.mp3

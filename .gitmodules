@@ -1,4 +1,0 @@
-[submodule "content"]
-	path = content
-	url = https://github.com/xiyu2005/xiyu2005.github.io.git
-	branch = main
