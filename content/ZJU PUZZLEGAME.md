@@ -1,3 +1,7 @@
+---
+draft: true
+---
+
 # CRYPTO
 ## 1
 ## 2

@@ -48,6 +48,8 @@ CONTAINER ID   IMAGE                                            COMMAND         
 容器（Container）	镜像的「动态运行实例」，是镜像加载到内存后形成的可读写运行环境，具备独立的文件系统、进程空间。
 
 
+
+我发现vscode的devcontainer打开才可以在容器内拆分终端，如果是docker exec进入的则不能拆分。这个大家可以注意一下。
 # Part 1
 ## Part 2 Linux 内核调试
 ### 2.1 交叉工具链
@@ -494,5 +496,5 @@ x/8gx $a2 输出：
     - **答**：OpenSBI 运行在 **M-Mode** (Machine)，内核运行在 **S-Mode** (Supervisor)。
         
 - **问**：在 GDB 中，我想看当前函数的调用路径，该用什么命令？
-    
+
     - **答**：bt 或 backtrace。
