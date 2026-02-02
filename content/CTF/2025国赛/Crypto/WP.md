@@ -173,3 +173,77 @@ print(flag)
 flag{581bdf717b780c3cd8282e5a4d50f3a0}
 
 
+
+
+
+EzFlag
+```c++
+__int64 __fastcall f(unsigned __int64 a1)  // a1是输入（即v11，无符号正整数）
+{
+__int64 v2; // 临时变量，仅存每次循环的v4旧值
+unsigned __int64 i; // 循环计数器，从0开始
+__int64 v4; // 迭代变量1，初始值1，每次循环更新
+__int64 v5; // 迭代变量2，初始值0，每次循环更新（最终作为取字符的索引）
+v5 = 0;     // 初始化v5为0
+v4 = 1;     // 初始化v4为1
+for ( i = 0; i < a1; ++i )  // 循环次数 = 输入a1的值（执行a1次循环）
+{
+v2 = v4;                    // 步骤1：把当前v4的值存到临时变量v2（保存旧值）
+v4 = ((_BYTE)v5 + (_BYTE)v4) & 0xF;  // 步骤2：计算新的v4（核心运算）
+v5 = v2;                    // 步骤3：把v4的旧值（v2）赋值给v5，更新v5
+}
+// 循环结束后，用最终的v5作为索引，从字符串K中取第v5个字符返回
+return *(unsigned __int8 *)std::string::operator[](&K, v5);
+}
+```
+
+
+寻找字符串K = "012ab9c3478d56ef"
+![[Pasted image 20260131180845.png]]
+
+```python
+
+def solve():
+    K = "012ab9c3478d56ef"
+    seq = [0,1,1,2,3,5,8,13,5,2,7,9,0,9,9,2,11,13,8,5,13,2,15,1]
+    flag = ""
+    v11 = 1
+    for i in range(32):
+        index = v11 % 24
+        seq_val = seq[index]
+        char_val = K[seq_val]
+        flag += char_val
+        if i in [7, 12, 17, 22]:
+                flag += "-"
+
+        # v11 *= 8LL; v11 += i + 64;
+        v11 = v11 * 8 + i + 64
+    print("Flag:{" + flag + "}")
+
+def f(a):
+    v5=0;v4=1
+    for i in range(0,a):
+        v2 = v4
+        v4_next = (v5+v4) % 16
+        v5 = v2
+        v4 = v4_next
+    return v5
+
+# #输出f(a)前50项
+# for i in range(100):
+#     print(f(i), end=',')
+
+solve()
+```
+Flag:{10632674-1d219-09f29-147a2-760632674}
+
+
+或者找到std::this_thread::sleep_for...
+![[Pasted image 20260131185812.png]]
+
+![[Pasted image 20260131192349.png]]
+![[Pasted image 20260131192310.png]]
+
+55换成C3
+可以做到进入函数后就直接rtn掉它。
+但是这个sleep并不是主要耗时，计算大数耗时间才是主要的问题（所以并没有成功也

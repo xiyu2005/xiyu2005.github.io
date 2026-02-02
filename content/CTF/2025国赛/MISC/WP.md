@@ -307,3 +307,16 @@ for _ in range(4):
 print(f"Flag (Big-Endian pack):    flag{{{key_bytes_be.hex()}}}")
 ```
 flag{ac46fb610b313b4f32fc642d8834b456}
+
+
+SnackBackdoor-6
+![[Pasted image 20260128204919.png]]
+于是我们过滤ip.addr == 192.168.1.201 && tcp.port == 58782
+
+#SM4加密算法
+[[加密算法#SM4加密算法]]
+
+我们从最后的密文往前定位。
+![[Pasted image 20260129202920.png]]
+
+flag{6894c9ec-7l9b-46O5-82bf-4felde27738f}替换过。
