@@ -350,6 +350,17 @@ New York is 3 hours ahead of California,[10]but it does not make California slow
 1. 唯一必调工具：`list_directory`（仅能通过它获取 /root 下未知的 flag 文件名）；
 2. 必绕核心限制：① 授权目录的路径范围限制 ② 服务器的路径校验机制 ③ 服务器层面的访问控制 / 虚假权限限制；
 3. 绕过大法：利用 CVE-2025-53110 目录遍历漏洞，构造 **「允许目录前缀 +/var/www/h」+「../ 路径穿越」** 的冲突前缀路径，对 /root 执行`list_directory`。
+
+
+## 珍贵的Signature
+![[Pasted image 20260207112730.png]]
+![[Pasted image 20260207112719.png]]
+
+![[Pasted image 20260207133151.png]]
+
+## 二维码
+56*56
+
 # Reverse
 ## a cup of tea
 
@@ -632,7 +643,7 @@ print("解密完成，请查看 flag.png")
 这道题的难点在于从繁杂的汇编代码中提取出四个通道对应的数学公式。一旦发现 Key 是循环使用的，且 Key 长度远小于像素总数，利用已知明文（通常是 Alpha=255 或背景色）即可秒杀。如果 Alpha 通道不对，可以尝试假设原图左上角第一个像素是白色（255, 255, 255）来获取 Key。
 SHCTF{@lPh4_b1T_L3Ak_th3_kEy_bUt_Ci4ll0!!}
 # Crypto
-
+## Ezflag
 分析e指数很大，考虑低解密指数d攻击
 ### 1. 题目分析
 
@@ -796,20 +807,20 @@ print(flag)
 ```
 
 
-## Stream
+## 古典也颇有韵味啊
+#Autokey
 密文：bcin!guy zeui wh! wwps ce yryz ysex:wpurt{wc@xdii_u2frmt_cwkg_ktani0}
 encode_key:ABBAAABBABBAABABAABBABAAAAABBAAABAAABBAAAABAABAAAAAABAA
 
-wpurt:SHCTF
-4 8 18  -2 14=EISYO
-
 ABBAA ABBAB BAABA BAABB ABAAA AABBA AABAA ABBAA AABAA BAAAA AABAA可能是培根密码。
-MNSTIGEMEQE
 
 notvigenere
+oops!you made jt! dbhm yr uaum kzjp:qlhnc{sp@jkna_o2beic_yjwn_plujv0}
+把明文oopsyoumadeit也作为密钥再拼接上去，新的明文作为密钥。
+oops!you made it! here is your flag:shctf{cl@ssic_c2ypto_also_crypt0}
 
-
-## LCG
+## STREAM
+#LCG
 ```python
 def gen():
     while True:
@@ -943,6 +954,548 @@ Decrypted Flag:
 b'SHCTF{LLLLLLLLLLLLLLLCCCCCGGGGGGGGG_TGY%JgWOmAM6V5n55w3m*jcPJZjHO8E1VvzrGjT84tXS332D&o4GZe8%KKzEyAngmwwx9bp5dv_O4dPpOvMy1^hM}'
 ```
 
+
+## Not_eight_length
+```python
+m = bytes_to_long(encrypted_flag) #flag明文
+p = getPrime(512) #512位指数p
+temp = nextprime(p) 
+q = nextprime(temp) #q是p下面一个相邻质数
+n = p * q
+e = 65537
+c = pow(m, e, n) # c = m^e % n
+
+```
+
+所以思路就是对n开平方,$p<\sqrt{n}<q$,$d = e^{-1}(mod \phi(n)),m= c^d(mod n)$
+bytes_to_long 是把字符串按 **每 8 位** 一个字符进行转换的。  直接bytes_to_long报错说明不是 8 位，极有可能是 7 位ASCII
+最后需要手动将大整数 m 按 **7 位** 一组切分。
+
+```python
+from Crypto.Util.number import long_to_bytes, inverse
+import sympy
+
+n = 172113078605688993167549425692325605693719693815361211139292482064751327114103720980024048929660587708361336638391782482562146750015275689746844657810313957504514376746631004470588767450715447808496931019899675426647981223953742448155335425954936981689508246039354976739386690722681509534696120714425567962527
+e = 65537
+c = 47611886444337000128826989676221463775339201602510220886566675518701473035795983698414894648685567473325732994652173596155832091773084566434572294009136327143103984205257862772844337876748271318723897875683699389776414143689503392203746843332334862282735760778003407162335426111769147991087343730761557771446
+
+# 1. 对 n 开根号得到一个近似值
+# 使用 sympy.integer_nthroot(n, 2) 得到 (根, 是否完全平方)
+root, _ = sympy.integer_nthroot(n, 2)
+
+# 2. 从 root 开始向前找第一个质数作为 p
+p = sympy.prevprime(root)
+
+# 3. 按照题目逻辑找 q
+temp = sympy.nextprime(p)
+q = sympy.nextprime(temp)
+
+# 4. 验证
+if p * q == n:
+    print("[+] 成功分解 n!")
+    # 5. 计算私钥
+    phi = (p - 1) * (q - 1)
+    d = inverse(e, phi)
+    
+    # 6. 解密
+    m = pow(c, d, n)
+    # flag = long_to_bytes(m)
+    # print(f"[+] Flag: {flag.decode()}")
+    # 1. 将大整数转为二进制字符串
+    bit_str = bin(m)[2:]
+
+    # 2. 补齐长度为 7 的倍数
+    while len(bit_str) % 7 != 0:
+        bit_str = '0' + bit_str
+
+    # 3. 每 7 位切分一次，转回字符
+    flag = ""
+    for i in range(0, len(bit_str), 7):
+        char_code = int(bit_str[i:i+7], 2)
+        if char_code != 0: # 过滤掉可能的 0 填充
+            flag += chr(char_code)
+
+    print(f"7-bit Flag: {flag}")
+
+
+else:
+    # 这种可能性极低，除非 p 是 root 后面的质数
+    print("[-] 分解失败，尝试调整寻找范围...")
+    # 备选：如果 prevprime 不行，试试 root 本身或其后的质数
+    p = sympy.nextprime(root) # 这不符合题目 nextprime(p) 的逻辑，但可以作为防御性编写
+```
+SHCTF{99f4a238-9bd5-498a-b8ea-5cd243a36a19}
+
+
+## Hash1
+#md5碰撞
+网上找一下内容不同但md5相同的东西就可以了
+apple1_hex = "0e306561559aa787d00bc6f70bbdfe3404cf03659e704f8534c00ffb659c4c8740cc942feb2da115a3f4155cbb8607497386656d7d1f34a42059d78f5a8dd1ef"
+apple2_hex = "0e306561559aa787d00bc6f70bbdfe3404cf03659e744f8534c00ffb659c4c8740cc942feb2da115a3f415dcbb8607497386656d7d1f34a42059d78f5a8dd1ef"
+ SHCTF{cOn6ra7u1aTIOns_8otH_haSh1_apples_@R3_VERY_DE1IC1#US_1OI}
+
+## Hash2 
+#选择前缀md5碰撞
+
+工具：fastcollision
+https://rivers.chaitin.cn/tools/md5fastcollision
+
+![[Pasted image 20260206181509.png]]
+
+ SHCTF{@I7H0U6H_H@sH2_aPPLeS_h@V3_5ign5_tHEY_ArE_s71LL_d3I1Ci#u5}
+
+
+## AES的诞生
+```python
+def get_seed() -> Optional[bytes]:
+    """
+    生成AES加密的密钥（32字节，对应AES-256）
+    逻辑：基于当前时间戳（精确到微秒）生成字符串，重复两次后转字节串，仅当长度为32时返回（作为密钥）
+    返回值：32字节的密钥（bytes）或None（长度不满足时）
+    """
+    # 1. 获取当前时间戳（秒）*10^6 → 转为整数（微秒级）→ 转字符串 → 重复两次 → 转utf-8字节串
+    # 2. 计算该字节串的长度
+    length = len((f"{int(time() * 10 ** 6)}" * 2).encode("utf-8"))
+    # 仅当长度恰好为32字节时返回该字节串（AES-256要求密钥长度32字节）
+    if (length == 32) :
+        return (f"{int(time() * 10 ** 6)}" * 2).encode("utf-8")
+        
+def oracle(chunk: str, cipher: Cipher, pkcs7_padding: padding.PKCS7) -> str:
+    """
+    加密单个分块的核心函数
+    参数：
+        chunk: 待加密的字符串分块
+        cipher: 初始化好的AES加密器对象
+        pkcs7_padding: PKCS7填充器对象（处理AES块对齐）
+    返回值：加密后的密文（十六进制字符串）
+    """
+    # 创建PKCS7填充器（用于将数据填充到AES块大小（128位/16字节）的整数倍）
+    padder = pkcs7_padding.padder()
+    # 对分块字符串进行填充：先更新数据，再完成填充（最终长度是16的倍数）
+    padded = padder.update(chunk.encode("utf-8")) + padder.finalize()
+    # 创建加密器对象
+    encryptor = cipher.encryptor()
+    # 加密填充后的数据，转十六进制字符串返回（方便存储和展示）
+    return (encryptor.update(padded) + encryptor.finalize()).hex()
+    
+
+def chunk(data: bytes, group_size: int = 7, random_fill: bool = True) -> list[str]:
+    """
+    对原始字节串进行自定义分块处理（核心逻辑：二进制拆分+补位）
+    参数：
+        data: 待分块的原始字节串（如flag）
+        group_size: 每个分块的目标长度（默认7）
+        random_fill: 补位方式（True=随机字符，False=0填充）
+    返回值：分块后的字符串列表
+    """
+    # 1. 将字节串转为大端序整数（bytes → int，方便转二进制字符串）
+    val = int.from_bytes(data, "big")
+    # 2. 将整数转为二进制字符串（无前缀，纯01）
+    bin_str = format(val, "b")
+    # 3. 定义补位用的字符集：数字+大小写字母
+    alphabet = string.digits + string.ascii_letters
+    # 初始化分块列表
+    groups: list[str] = []
+    # 4. 按group_size长度拆分二进制字符串
+    for i in range(0, len(bin_str), group_size):
+        # 截取当前分块（从i开始，取group_size个字符）
+        g = bin_str[i : i + group_size]
+        # 如果当前分块长度不足group_size，需要补位
+        if len(g) < group_size:
+            if random_fill:
+                # 随机补位：生成不足长度的随机字符（从alphabet中选）
+                fill = ''.join(secrets.choice(alphabet) for _ in range(group_size - len(g)))
+            else:
+                # 固定补位：用0填充不足的长度
+                fill = '0' * (group_size - len(g))
+            # 补位到分块末尾
+            g = g + fill
+        # 将补位后的分块加入列表
+        groups.append(g)
+    return groups
+```
+
+
+main函数逻辑
+```python
+# 1. 生成AES密钥（32字节）
+    key = get_seed()
+    # 2. 对flag字节串进行分块处理（7个字符/块，随机补位）
+    groups = chunk(flag, group_size=7, random_fill=True)
+    # 3. 生成AES-CBC模式的初始化向量（IV）：16字节随机数（CBC模式必须用16字节IV）
+    iv = os.urandom(16)
+    # 4. 初始化AES-CBC加密器：算法=AES（密钥key），模式=CBC（IV）
+    aes_cipher = Cipher(algorithms.AES(key), modes.CBC(iv))
+    # 5. 初始化PKCS7填充器：块大小=AES块大小（128位/16字节）
+    pkcs7 = padding.PKCS7(algorithms.AES.block_size)
+    # 6. 对每个分块执行加密，得到密文列表（每个元素是十六进制字符串）
+    ciphertexts = [oracle(g, aes_cipher, pkcs7) for g in groups]
+    # 初始化输出行列表（用于存储要写入文件的内容）
+    out_lines: list[str] = []
+```
+
+首先我们查看到大概是2001-11-26左右的时间发布，由前五个开头SHCTF{编写爆破key的脚本。
+```python
+import binascii
+import re
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+
+# 1. 准备数据
+iv_hex = "d966f3a0c51cd460764b0b62ad10796a"
+iv = binascii.unhexlify(iv_hex)
+# data.txt 的第一个密文块
+first_ct = binascii.unhexlify("50b46ebd11b82c5b5c802913e60b4ad5")
+
+# 'SHCTF{' 的二进制处理
+# int.from_bytes(b'S', 'big') -> 83 -> '1010011' (7位)
+target_pt_prefix = b"1010011" 
+
+# 2. 爆破范围：2001-11-26 及其前后的时间戳
+# 2001-11-25 00:00:00 到 2001-11-27 23:59:59
+start_ts = 1006646400 
+end_ts = 1006905600
+
+print("正在搜索正确的特殊时间戳...")
+
+for ts in range(start_ts, end_ts):
+    # 构造候选 Key
+    ts_str = str(ts * 10**6) # 16位字符串
+    candidate_key = (ts_str * 2).encode()
+    
+    # 尝试解密第一块
+    cipher = Cipher(algorithms.AES(candidate_key), modes.CBC(iv))
+    decryptor = cipher.decryptor()
+    try:
+        pt_padded = decryptor.update(first_ct) + decryptor.finalize()
+        # 检查是否以 1010011 开头且填充合法
+        if pt_padded.startswith(target_pt_prefix):
+            pad_val = pt_padded[-1]
+            if 1 <= pad_val <= 16:
+                content = pt_padded[:-pad_val]
+                if content == target_pt_prefix:
+                    print(f"\n[!!!] 找到匹配的 Key!")
+                    print(f"时间戳 (Unix): {ts}")
+                    print(f"Key 字符串部分: {ts_str}")
+                    # 可以在这里直接调用解密函数获取全文
+                    break
+    except:
+        continue
+```
+找到时间戳 (Unix): 1006704000，Key 字符串部分: 1006704000000000
+
+```python
+import re
+import binascii
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives import padding
+
+def decrypt_aes_birth():
+    # 1. 解析 data.txt
+
+    with open('data.txt', 'r', encoding='utf-8') as f:
+        content = f.read()
+
+
+    # 使用正则提取 IV
+    iv_match = re.search(r'iv = ([0-9a-f]+)', content)
+    if not iv_match:
+        print("错误：无法在文件中找到 IV。")
+        return
+    iv = binascii.unhexlify(iv_match.group(1))
+
+    # 提取所有密文块
+    ciphertexts = re.findall(r'\| ([0-9a-f]+) \|', content)
+    if not ciphertexts:
+        print("错误：无法在文件中找到密文块。")
+        return
+
+    # 2. 确定 Key (AES 的诞生：FIPS 197 发布日期 2001-11-26)
+    timestamp_part = "1006704000000000"
+    key = (timestamp_part * 2).encode("utf-8")
+
+    # 3. 逐块解密
+    # 注意：由于代码在循环内每次调用 encryptor()，每一块都是用初始 IV 独立加密的
+    bin_str = ""
+    
+    # 初始化解密器（CBC 模式）
+    # 即使是 CBC，如果每一块都重新开始，它就退化成了使用相同 IV 的块加密
+    for i, ct_hex in enumerate(ciphertexts):
+        ct_bytes = binascii.unhexlify(ct_hex)
+        
+        # 每一块都必须创建一个新的解密器上下文，因为加密时每一块都重新创建了加密器
+        cipher = Cipher(algorithms.AES(key), modes.CBC(iv))
+        decryptor = cipher.decryptor()
+        
+        # 解密并移除 PKCS7 填充
+        padded_pt = decryptor.update(ct_bytes) + decryptor.finalize()
+        
+        # PKCS7 去填充
+        pad_len = padded_pt[-1]
+        try:
+            # 得到的 pt 是形如 "0101011" 的字符串
+            g = padded_pt[:-pad_len].decode("utf-8")
+        except:
+            print(f"警告：第 {i} 块解密失败，Key 可能不正确。")
+            return
+
+        # 处理每一块的数据
+        if i < len(ciphertexts) - 1:
+            # 中间的块一定是完整的 7 位
+            bin_str += g
+        else:
+            # 最后一块可能包含 random_fill 的字母，只取开头的二进制部分
+            for char in g:
+                if char in '01':
+                    bin_str += char
+                else:
+                    break
+
+    # 4. 将二进制流转回 Bytes
+    # 注意：原本的 bin_str = format(val, "b") 可能会丢失 'S' 开头的 0
+    # SHCTF 的 'S' 是 0x53 (01010011)，如果长度不是 8 的倍数，需要在前面补 0
+    
+    # 尝试补齐位宽，使之能被 8 整除
+    missing_zeros = (8 - (len(bin_str) % 8)) % 8
+    # 实际上由于 format(val, 'b')，最前面的 0 会丢失，我们尝试前缀补 0
+    # 一般 Flag 开头是 'S' (01010011)，去掉最高位 0 确实会剩下 7 位
+    
+    # 我们通过补齐到 8 的倍数来转换
+    try:
+        # 如果第一位是 1 且不满足 8 位，通常是丢失了一个 0 (因为 'S' 是 01010011)
+        if len(bin_str) % 8 != 0:
+            bin_str = '0' * (8 - (len(bin_str) % 8)) + bin_str
+            
+        val = int(bin_str, 2)
+        flag = val.to_bytes((val.bit_length() + 7) // 8, "big")
+        print(f"Flag: {flag.decode('utf-8', errors='ignore')}")
+    except Exception as e:
+        print(f"二进制转换出错: {e}")
+
+if __name__ == "__main__":
+    decrypt_aes_birth()
+```
+
+SHCTF{HE1lO_ctf3r_W3Lcome_tO_5hc7f_THi5_iS_e5aY_cRypt0@!!!}
+
+
+# 隐藏子集合
+
+```python
+def derive_M(n):
+    """
+    生成一个大素数p，素数的位数由给定公式计算
+    参数：n - 矩阵维度参数（整数）
+    返回：大素数M（sage的Integer类型）
+    """
+    # 设定一个常数iota（0.035），用于计算素数的位数
+    iota=0.035
+    # 计算素数的二进制位数：2*iota*n² + n*log2(n)
+    # log(n,2)是sage中以2为底的对数，确保位数与n的规模适配
+    Mbits=int(2 * iota * n^2 + n * log(n,2))
+    # 生成一个Mbits位的随机素数：
+    # - 2^Mbits：上界（不包含）
+    # - proof=False：关闭素性证明加速生成（非严格场景）
+    # - lbound=2^(Mbits-1)：下界，确保是恰好Mbits位的素数
+    M = random_prime(2^Mbits, proof = False, lbound = 2^(Mbits - 1))
+    return Integer(M)
+
+def genHssp(m, n, p, flag):
+    """
+    核心函数：生成隐藏flag的矩阵乘积结果h
+    参数：
+        m - flag二进制形式的长度（整数）
+        n - 矩阵维度参数（整数）
+        p - 大素数（模）
+        flag - 待隐藏的字节串flag
+    返回：1×m的行向量h（有限域GF(p)上）
+    """
+    # 1. 构造模p的有限域GF(p)（所有运算都基于这个域）
+    F = GF(p)
+    # 2. 生成GF(p)上的1×n随机行向量x（元素随机取自GF(p)）
+    x = random_matrix(F, 1, n)
+    # 3. 生成n×m的整数矩阵A：
+    #    - ZZ：整数环（矩阵元素是整数）
+    #    - x=0, y=3：元素范围是0 ≤ 元素 ≤ 3（随机整数）
+    A = random_matrix(ZZ, n, m, x=0, y=3)
+    # 4. 将flag转换为二进制字符串（去掉0b前缀），再转成整数向量，替换A的随机一行：
+    #    - bytes_to_long(flag)：字节串转长整数
+    #    - bin(...)：转二进制字符串（如0b101），[2:]去掉前缀
+    #    - list(...)：将二进制字符转成列表（如['1','0','1']），再转整数向量
+    #    - randint(0, n-1)：随机选A的某一行（0到n-1行）
+    A[randint(0, n-1)] = vector(ZZ, list(bin(bytes_to_long(flag))[2:]))
+    # 5. 矩阵乘法：x（1×n） * A（n×m） = h（1×m），结果自动落在GF(p)上
+    h = x * A
+    return h
+
+
+
+
+m = bytes_to_long(flag).bit_length()
+n = 70
+p = derive_M(n)
+h = genHssp(m, n, p, flag)
+data_write(p, h)
+
+```
+
+我翻笔记想到做过的背包问题[[格密码专题笔记#Knapsack_Problem]]
+也许可以利用格基规约解决
+![[Pasted image 20260207093156.png]]
+```python
+from sage.all import *
+from Crypto.Util.number import long_to_bytes
+
+# 1. 加载数据 
+p = 22527567709351860968297965136571841384253940383171666123843283544404254685963299566866675729741552750597510487062187650499337720149099188442136389004931925728525034834936577724891171153891435326615558587394088624308302216635758627867
+
+h = vector(ZZ, [...])
+
+m = len(h)
+n = 70
+
+# 2. 构造寻找 u 的格: {u | u*h = 0 mod p}
+# 构造基矩阵 (m x m):
+# [ p   0   0   ... ]
+# [ h1*inv(h0) 1 0 ... ]
+# [ h2*inv(h0) 0 1 ... ]
+M = Matrix(ZZ, m, m)
+h0_inv = pow(int(h[0]), -1, p)
+M[0, 0] = p
+for i in range(1, m):
+    M[i, 0] = (int(h[i]) * h0_inv) % p
+    M[i, i] = -1
+
+# 3. LLL 寻找短向量 u
+print("Running LLL on M...")
+M_reduced = M.LLL()
+
+# 取前 m-n 个足够短的向量，它们应该满足 u * A^T = 0
+U = M_reduced[:m-n]
+
+# 4. 寻找 U 的正交空间，即恢复 A 的行
+# 我们需要找到所有满足 v * U^T = 0 的向量 v
+print("Finding orthogonal complement...")
+A_basis = U.right_kernel().basis_matrix()
+
+# 5. 对恢复出的基进行 LLL 以获得原始的小系数行向量
+A_recovered = A_basis.LLL()
+
+# 6. 遍历寻找符合 Flag 特征的行 (只有 0 和 1)
+print("Searching for flag row...")
+for row in A_recovered:
+    # 检查是否只包含 0 和 1
+    if all(x in [0, 1] for x in row):
+        # 转换为字节
+        bits = "".join(map(str, row))
+        try:
+            flag = long_to_bytes(int(bits, 2))
+            if b'SHCTF' in flag:
+                print(f"Found Flag: {flag.decode()}")
+                break
+        except:
+            continue
+    
+    # 有时 LLL 可能会得到负的行，尝试取反
+    row_neg = [-x for x in row]
+    if all(x in [0, 1] for x in row_neg):
+        bits = "".join(map(str, row_neg))
+        try:
+            flag = long_to_bytes(int(bits, 2))
+            if b'SHCTF' in flag:
+                print(f"Found Flag: {flag.decode()}")
+                break
+        except:
+            continue
+```
+
+
+## Titanium
+类cipher的内容：初始化，flag → f1（按位随机 + 异或）→ f2（矩阵乘法 + 补位）→ f3（AES-CTR 加密）→ 输出密文 + 关键参数；
+```python
+#参数设置
+self.seed = random.randint(100000, 999999)
+        # 2. 16行12列的二维列表（矩阵），元素是1-100的随机整数（f2的乘法矩阵）
+        self.c1 = [[random.randint(1, 100) for _ in range(12)] for _ in range(16)]
+        # 3. 长度为16的列表，元素是1-1000的随机整数（f2的偏移量）
+        self.c2 = [random.randint(1, 1000) for _ in range(16)]
+        # 4. 128位随机数（核心密钥，用于f3的比特统计和AES密钥生成）
+        self.key = random.getrandbits(128)
+        
+        
+#f1:
+ def f1(self, msg):
+        """
+        第一层变换：将flag转整数字符串后，按位结合随机数+异或生成中间列表
+        参数：msg - 原始flag字节串
+        返回：经过异或和随机数混合的整数列表
+        """
+        # 用初始化的seed固定随机数生成器（确保每次调用f1生成的随机数一致）
+        random.seed(self.seed)
+        enc, last = [], 0  # enc存储结果，last记录上一轮的异或值（初始为0）
+        # 将flag字节串转长整数，再转字符串（flag=b'abc...'→979899...→"979899..."）
+        for c in str(bytes_to_long(msg)):
+            # 生成6位随机整数（100000-999999）
+            r = random.randint(100000, 999999)
+            # 按当前数字的奇偶性做不同运算：
+            # - 偶数：数字 + 随机数；奇数：数字 × 随机数
+            temp = (int(c) + r) if int(c) % 2 == 0 else (int(c) * r)
+            # 与上一轮的last做异或，更新last并加入结果列表
+            last = temp ^ last
+            enc.append(last)
+        return enc
+
+
+def f2(self, v):
+        """
+        第二层变换：对f1的输出补位后，通过矩阵乘法+偏移生成新列表
+        参数：v - f1输出的整数列表
+        返回：矩阵运算后的整数列表
+        """
+        # 补位：确保列表长度是12的整数倍，不足部分补0-255的随机整数
+        # -len(v) % 12 计算需要补的位数（比如v长度10→补2位，长度12→补0位）
+        v += [random.randint(0, 255) for _ in range(-len(v) % 12)]
+        res = []
+        # 按12个元素为一组拆分补位后的列表
+        for i in range(0, len(v), 12):
+            chunk = v[i:i+12]  # 取当前12元素块
+            # 对每一行（共16行）计算：c1[r]矩阵行 × chunk列（点积） + c2[r]偏移量
+            # 比如r=0时：sum(c1[0][0]*chunk[0] + c1[0][1]*chunk[1] + ... + c1[0][11]*chunk[11]) + c2[0]
+            res.extend([sum(self.c1[r][c] * chunk[c] for c in range(12)) + self.c2[r] for r in range(16)])
+        return res
+        
+def f3(self, data):
+        """
+        第三层变换：生成随机数轨迹 + AES-CTR加密f2的输出
+        参数：data - f2输出的整数列表
+        返回：
+            out - 包含128*20个元素的列表，每个元素是(128位随机数, 比特统计值)
+            加密后的十六进制字符串 - AES-CTR加密data的结果
+        """
+        # 生成2560个（128*20）元素的列表：
+        # 每个元素是二元组：(128位随机数n, (n & self.key的二进制中1的个数 %3 )%2)
+        # 解释：n & self.key 按位与 → 统计1的个数 → 模3 → 再模2（结果只能是0或1）
+        out = [[n := random.getrandbits(128), (bin(n & self.key).count('1') % 3) % 2] for _ in range(128 * 20)]
+        # 生成AES密钥：将self.key转字符串→编码→md5哈希→16字节（AES-128要求）
+        k = md5(str(self.key).encode()).digest()
+        # AES-CTR模式加密：
+        # - 密钥k（16字节）；模式CTR；nonce固定为b"Tiffany\x00"（8字节，CTR模式nonce通常8-16字节）
+        # - 加密数据：将f2的输出列表转字符串→编码→加密→转十六进制
+        ciphertext = AES.new(k, AES.MODE_CTR, nonce=b"Tiffany\x00").encrypt(str(data).encode()).hex()
+        return out, ciphertext
+        
+        
+def encrypt(self, data):
+        """
+        主加密函数：串联f1→f2→f3，返回包含所有关键参数的字典
+        参数：data - 原始flag字节串
+        返回：字典，包含c1、c2、trace（f3的随机列表）、result（AES密文）
+        """
+        # 执行三层变换：f1处理flag → f2处理f1结果 → f3处理f2结果
+        o, c = self.f3(self.f2(self.f1(data)))
+        # 返回加密结果字典
+        return {"p1": self.c1, "p2": self.c2, "trace": o, "result": c}
+```
+最终写入data.txt。
 # OSINT
 ## 1
 ![[Pasted image 20260202155147.png]]
