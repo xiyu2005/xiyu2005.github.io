@@ -1,7 +1,7 @@
 ---
-draft: true
+draft: false
 ---
-
+Xiyu
 # Misc
 
 ## Evan
@@ -23,8 +23,6 @@ SHCTF{Evan_1s_s0_h4nds0me!}
 SHCTF{MS_Office_is_the_best_office_software.wps}
 
 
-
-## dida
 
 
 ## QRcode
@@ -56,12 +54,12 @@ base64
 SHCTF{1_8_74_20_7_92_16_5_18_8_7}
 根据提示用元素周期表对应
 SHCTF{H_O_W_CA_N_U_S_B_AR_O_N}
-但是该喷这个出题人语文真烂啊，我以为是提醒SHCTF大写，tmd是里面内容大写，磕了半个小时以为还有藏东西
+但是该喷这个出题人表述，我以为是提醒SHCTF大写，tmd是里面内容大写，磕了半个小时以为还有藏东西
 
 
 
 ## 资源平权
-明文攻击[[Misc内训#1.2明文攻击]]
+明文攻击，和我讲过的一个题目思路类似。[[Misc内训#1.2明文攻击]]
 
 用winrar把这个压缩包拖进去可以直接提取出里面的资源使用说明.txt，保存出来重命名为txt
 ![[Pasted image 20260202200245.png]]
@@ -70,11 +68,14 @@ SHCTF{H_O_W_CA_N_U_S_B_AR_O_N}
 
 
 ## Open_my_puff
+
+step1:零宽字符
 ![[Pasted image 20260202225415.png]]
 隐藏文本
 keyA:12345678
 keyB:qwertyui
 keyC:asdfghjk
+step2:
 2.png末尾提示OpenPuffv4.01，下载来用
 ![[Pasted image 20260202225559.png]]
 
@@ -82,6 +83,7 @@ keyC:asdfghjk
 flag.txt
 niimmccw????zfip
 
+step3:
 flag.zip的末尾显示ZipCrypto，这是传统zip加密，是可以明文攻击的。且用winrar打开发现flag.zip里面，flag.txt的大小从278压缩到了290，ZipCrypto 加密中，每个加密文件都会增加一个 **12 字节的加密首部 (Encryption Header)**，这说明采用的是**Store**模式压缩。niimmccw →→6e69696d6d636377，
 zfip →→7a666970，已知十二个字节，可以进行明文攻击。
 
@@ -92,7 +94,7 @@ bkcrack -C flag.zip -c flag.txt -x 0 6e69696d6d636377 -x 12 7a666970
 
 ## 提问前先搜索
 ![[Pasted image 20260203001501.png]]
-请输入文本...
+请输入文本
 
 
 ## dida
@@ -108,7 +110,7 @@ Scottie S1：约 110 秒
 Robot 36：约 36 秒（常用，速度快但画质一般）。
 Robot 8：约 8 秒（极速模式）。
 
-## 阶段二
+## 阶段二 
 ## 奇怪的数据
 410行，每行的（255，255，255）是白，（0，0，0）是黑
 ![[Pasted image 20260204101409.png]]
@@ -241,7 +243,6 @@ def solve():
 
     print("-" * 40)
     print(f"处理完成。共生成 {valid_count} 组文件，请进入 '{RESTORE_DIR}' 目录查看。")
-    print("提示：如果文件依然无法打开，请尝试使用 7-Zip (Windows) 或 'unzip' 命令行 (Linux/Mac) 测试，有时系统自带解压对损坏文件容忍度低。")
 
 def check_header(custom_table, cipher_text, magic_bytes):
     """快速检查解密后的前几个字节是否匹配魔数"""
@@ -320,8 +321,8 @@ New York is 3 hours ahead of California,[10]but it does not make California slow
 
 
 
-## EzAI
-### 一、**必须调用的核心工具：`list_directory`**
+## EzAI 没解出来
+一、**必须调用的核心工具：`list_directory`**
 
 结合`@modelcontextprotocol/server-filesystem@0.6.1`官方 API 规范 + 当前场景（**flag 文件名未知、存放于 /root**），**唯一且必须调用`list_directory`工具**，无任何替代方案，核心原因：
 
@@ -329,7 +330,7 @@ New York is 3 hours ahead of California,[10]but it does not make California slow
 
 **调用核心目标**：对`/root`目录执行`list_directory`，获取该目录下的所有文件名，从中定位 flag 文件。
 
-### 二、**调用`list_directory`必须绕过的 3 个核心限制（靶机 + 漏洞场景专属）**
+ 二、**调用`list_directory`必须绕过的 3 个核心限制（靶机 + 漏洞场景专属）**
 
 调用`list_directory`访问`/root`的核心矛盾是：**靶机仅允许对授权目录`/var/www/h`执行操作，而`/root`是授权目录外的敏感目录**，且服务器存在基础路径检查，因此必须同时绕过以下 3 点，才能成功执行对`/root`的目录遍历：
 
@@ -345,20 +346,17 @@ New York is 3 hours ahead of California,[10]but it does not make California slow
 
 此前操作中遇到的 “没有权限” 并非真的缺少文件系统权限，而是**服务器层面的访问控制拦截**（因路径格式不合法，被判定为非法访问），需通过合规的路径构造（贴合漏洞特性），让服务器认为对`/root`的`list_directory`调用是 “合规操作”，从而放行，绕过该访问控制限制。
 
-### 核心总结
-
-1. 唯一必调工具：`list_directory`（仅能通过它获取 /root 下未知的 flag 文件名）；
-2. 必绕核心限制：① 授权目录的路径范围限制 ② 服务器的路径校验机制 ③ 服务器层面的访问控制 / 虚假权限限制；
-3. 绕过大法：利用 CVE-2025-53110 目录遍历漏洞，构造 **「允许目录前缀 +/var/www/h」+「../ 路径穿越」** 的冲突前缀路径，对 /root 执行`list_directory`。
+directory`。
 
 
-## 珍贵的Signature
+## 珍贵的Signature  没解出来
 ![[Pasted image 20260207112730.png]]
 ![[Pasted image 20260207112719.png]]
 
 ![[Pasted image 20260207133151.png]]
 
-## 二维码
+## 二维码 没解出来
+
 56*56
 
 # Reverse
@@ -1409,7 +1407,7 @@ for row in A_recovered:
 ```
 
 
-## Titanium
+## Titanium 没解出来
 类cipher的内容：初始化，flag → f1（按位随机 + 异或）→ f2（矩阵乘法 + 补位）→ f3（AES-CTR 加密）→ 输出密文 + 关键参数；
 ```python
 #参数设置
@@ -1496,6 +1494,6 @@ def encrypt(self, data):
         return {"p1": self.c1, "p2": self.c2, "trace": o, "result": c}
 ```
 最终写入data.txt。
-# OSINT
+# OSINT 爆0
 ## 1
 ![[Pasted image 20260202155147.png]]
