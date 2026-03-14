@@ -11,8 +11,6 @@ Xiyu
 SHCTF{Evan_1s_s0_h4nds0me!}
 
 ## Office
-
-
 魔改过字母表的的base64
 ![[Pasted image 20260202142553.png]]
 
@@ -68,7 +66,6 @@ SHCTF{H_O_W_CA_N_U_S_B_AR_O_N}
 
 
 ## Open_my_puff
-
 step1:零宽字符
 ![[Pasted image 20260202225415.png]]
 隐藏文本
