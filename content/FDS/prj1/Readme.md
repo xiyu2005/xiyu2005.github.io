@@ -1,3 +1,7 @@
+---
+draft: true
+---
+
 # Search Algorithm Performance Analysis
 
 This project benchmarks the performance of **Sequential Search** and **Binary Search** algorithms (both Iterative and Recursive versions). The project investigates the worst-case scenario where the target element does not exist in the array.
