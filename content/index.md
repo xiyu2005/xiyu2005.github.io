@@ -5,7 +5,7 @@ tags:
   - Welcome
 permalink: Homepage
 ---
-# 欢迎来到我的数字花园
+<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;background:linear-gradient(90deg,rgba(94,129,172,0.08),transparent);margin:12px 0;"> <span style="font-size:22px;">🌿</span> <span style="font-size:15px;font-weight:500;color:#333;">我的数字花园 · Obsidian × Quartz</span> </div>
 
 这是我的首页！
 
@@ -36,3 +36,6 @@ graph TD
         build -- "10\. 部署" --> pages(访客最终看到的在线网站)
     end
 ```
+
+
+<div style="padding:14px;border-radius:12px;background:rgba(94,129,172,0.06);border:1px solid rgba(94,129,172,0.12);margin:12px 0;"> <p style="margin:0;line-height:1.6;font-size:14px;color:#3a4454;"> ✨ 本站由Obsidian双链笔记驱动，Quartz静态部署，内容持续更新生长 </p> </div>
