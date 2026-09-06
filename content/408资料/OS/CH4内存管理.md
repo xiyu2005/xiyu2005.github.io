@@ -1,4 +1,5 @@
 ## 基本概念
+
 $n位地址 \Leftrightarrow 2^n 个存储单元$ 
 
 常规存储器
@@ -13,13 +14,272 @@ $n位地址 \Leftrightarrow 2^n 个存储单元$
 2️⃣链接：由链接程序将这些目标模块及其所需的库函数合并，形成完整的装入模块。各个模块内的**相对地址要修改成装入模块的逻辑地址**。
 3️⃣装入（加载）：由装入程序将该装入模块加载入**内存**，并启动其执行。
 
+##### static关键字
+函数外部static：`static int m = 10;`
+位置：在所有函数外部。
+作用域：从定义处到文件末尾，仅限本文件内可见。
+链接属性：内部链接（internal linkage），其他 .c 文件无法 extern 访问它。
+生命周期：程序开始执行时分配空间，程序结束时释放（整个程序期间存在）。
+存储区域：已初始化 → .data；未初始化 → .bss。
+目的：限制全局变量只在本文件使用，避免与其他文件的同名符号冲突。
+static函数：表示该函数仅本文件可见，其他文件不能调用。
+内部static
+```c
+void func(void) {
+    static int count = 0;  // 局部静态变量
+    count++;
+    printf("%d\n", count);
+}
+```
+位置：在函数（或任何块）内部。
+作用域：仅在定义它的函数（或块）内部可见，函数外无法访问。
+链接属性：无链接（仅块作用域）。
+生命周期：程序开始执行时分配空间（但初始化会延迟到第一次执行到该定义时），程序结束时释放。只初始化一次，之后保持上次调用后的值。
+存储区域：已初始化 → .data；未初始化 → .bss（即使未显示初始化也自动为 0）。
+目的：在多次调用之间保持状态，但避免使用全局变量。
+
+
+
 链接方式：（链接发生的时机分类，什么时候链接？）
-1️⃣静态链接（**装入前链接完了**）：**程序运行之前**将各目标模块及其所需库函数链接成一个完整的装入模块（可执行文件），此后不
-再拆分。
-特点：1.**地址调整**：各模块编译后均以0位起始地址，链接时需根据其在装入模块中的实际位置，将内部地址统一加上偏移量。2.**外部符号解析**:将模块间引用的外部符号（比如函数名）替换为确定的地址。
+1️⃣静态链接（**装入前**）：**程序运行之前**将各目标模块及其所需库函数链接成一个完整的装入模块（可执行文件），此后不再拆分。
+<div style="display:flex;justify-content:center;font-family:SimHei,sans-serif;margin:0;padding:0;">
+  <svg width="1400" height="300" viewBox="0 0 1400 500" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto">
+        <path d="M0,0 L0,8 L10,4 z" fill="#000"/>
+      </marker>
+    </defs>
+
+    <!-- 源文件 -->
+    <text x="220" y="30" font-size="30" text-anchor="middle" font-family="SimHei, sans-serif">main.c</text>
+    <text x="700" y="30" font-size="30" text-anchor="middle" font-family="SimHei, sans-serif">swap.c</text>
+    <text x="920" y="30" font-size="30" font-family="SimHei, sans-serif">源文件</text>
+
+    <!-- 翻译器 -->
+    <rect x="40" y="50" width="360" height="130" fill="#fff" stroke="#000" stroke-width="3"/>
+    <text x="220" y="115" font-size="32" text-anchor="middle" font-family="SimHei, sans-serif">翻译器</text>
+    <text x="220" y="155" font-size="26" text-anchor="middle" font-family="SimHei, sans-serif">(cpp, cc1, as)</text>
+
+    <rect x="520" y="50" width="360" height="130" fill="#fff" stroke="#000" stroke-width="3"/>
+    <text x="700" y="115" font-size="32" text-anchor="middle" font-family="SimHei, sans-serif">翻译器</text>
+    <text x="700" y="155" font-size="26" text-anchor="middle" font-family="SimHei, sans-serif">(cpp, cc1, as)</text>
+
+    <!-- 源文件到翻译器 -->
+    <line x1="220" y1="38" x2="220" y2="50" stroke="#000" stroke-width="2" marker-end="url(#arrow)"/>
+    <line x1="700" y1="38" x2="700" y2="50" stroke="#000" stroke-width="2" marker-end="url(#arrow)"/>
+
+    <!-- 可重定位目标文件 -->
+    <text x="220" y="200" font-size="30" text-anchor="middle" font-family="SimHei, sans-serif">main.o</text>
+    <text x="700" y="200" font-size="30" text-anchor="middle" font-family="SimHei, sans-serif">swap.o</text>
+    <text x="960" y="200" font-size="30" font-family="SimHei, sans-serif">可重定位目标文件</text>
+
+    <!-- 翻译器到目标文件 -->
+    <line x1="220" y1="180" x2="220" y2="182" stroke="#000" stroke-width="2" marker-end="url(#arrow)"/>
+    <line x1="700" y1="180" x2="700" y2="182" stroke="#000" stroke-width="2" marker-end="url(#arrow)"/>
+
+    <!-- 链接器 -->
+    <rect x="100" y="230" width="1080" height="120" fill="#fff" stroke="#000" stroke-width="3"/>
+    <text x="640" y="300" font-size="34" text-anchor="middle" font-family="SimHei, sans-serif">链接器 (ld)</text>
+
+    <!-- 目标文件到链接器 -->
+    <line x1="220" y1="212" x2="220" y2="230" stroke="#000" stroke-width="2" marker-end="url(#arrow)"/>
+    <line x1="700" y1="212" x2="700" y2="230" stroke="#000" stroke-width="2" marker-end="url(#arrow)"/>
+
+    <!-- 输出文件 -->
+    <text x="640" y="380" font-size="30" text-anchor="middle" font-family="SimHei, sans-serif">p</text>
+    <line x1="640" y1="350" x2="640" y2="365" stroke="#000" stroke-width="2" marker-end="url(#arrow)"/>
+
+    <text x="740" y="420" font-size="30" font-family="SimHei, sans-serif">
+      <tspan x="740" dy="0">完全链接的</tspan>
+      <tspan x="740" dy="35">可执行目标文件</tspan>
+    </text>
+  </svg>
+</div>
+
+特点：1.**地址调整**：各模块编译后均以0位起始地址，链接时需根据其在装入模块中的实际位置，将内部地址统一加上偏移量。2.**外部符号解析**:将模块间引用的外部符号（比如函数名）替换为确定的地址。（重定位）
+
+强符号：函数+已初始化的全局变量；弱符号：未初始化的全局变量
+```c
+//练习题7.2 符号解析练习题
+在此题中，REF(x.i)→DEF(x.k)表示链接器将把模块 i 中对符号 x 的任意引用与模块 k 中 x 的定义联系起来。对于下面的每个示例，用这种表示法来说明链接器将如何解析每个模块中的多个定义的符号。如果有一个链接时错误（规则 1），输出 "ERROR"。如果链接器从定义中任意选择一个（规则 3），则输出"UNKNOWN"。
+
+A.
+/* Module 1 */
+int main()
+{
+}
+/* Module 2 */
+int main;
+int p2()
+{
+}
+(a) REF(main.1) --> DEF(___.___)
+(b) REF(main.2) --> DEF(___.___)
+
+B.
+/* Module 1 */
+void main()
+{
+}
+/* Module 2 */
+int main=1;
+int p2()
+{
+}
+(a) REF(main.1) --> DEF(___.___)
+(b) REF(main.2) --> DEF(___.___)
+
+C.
+/* Module 1 */
+int x;
+void main()
+{
+}
+/* Module 2 */
+double x=1.0;
+int p2()
+{
+}
+(a) REF(x.1) --> DEF(___.___)
+(b) REF(x.2) --> DEF(___.___)
+
+---
+参考答案
+A
+(a) REF(main.1) --> DEF(main.1)
+(b) REF(main.2) --> DEF(main.1)
+
+B
+(a) ERROR
+(b) ERROR
+
+C
+(a) REF(x.1) --> DEF(x.2)
+(b) REF(x.2) --> DEF(x.2)
+```
+
+
+例题：下列程序，会用double的-0覆盖x和y。
+```c
+// foo5.c
+#include<stdio.h>
+void f(void);
+int y = 15212;
+int x = 15213;
+int main()
+{
+    f();
+    printf("x=0x%x y=0x%x\n", x, y);
+    return 0;
+}
+
+// bar5.c
+double x;
+void f()
+{
+    x = -0.0;
+}
+
+```
+
+练习题7.1 这个题目针对图中的`m.o`和`swap.o`模块。对于每个在`swap.o`中定义或引用的符号，请指出它是否在模块`swap.o`中的`.symtab`节中有一个符号表条目。如果是，请指出定义该符号的模块（`swap.o`或者`m.o`）、符号类型（局部、全局或者外部）以及它在模块中被分配到的节（`.text`、`.data`、`.bss` 或 `COMMON`）。
+
+| 符号      | .symtab条目? | 符号类型                          | 在哪个模块中定义 | 节      |
+| ------- | ---------- | ----------------------------- | -------- | ------ |
+| buf     | 是          | 外部                            | m.o      | .data  |
+| bufp0   | 是          | 全局                            | swap.o   | .data  |
+| bufp1   | 是          | 全局                            | swap.o   | COMMON |
+| swap    | 是          | 全局                            | swap.o   | .text  |
+| temp    | 否          | -                             | -        | -      |
+| 解析：     |            |                               |          |        |
+| 符号      | 运行时所在区域    | 具体说明                          |          |        |
+| `buf`   | 可读写数据段     | 已初始化全局数组，加载到 `.data`，属于可读写数据段 |          |        |
+| `bufp0` | 可读写数据段     | 已初始化全局指针，加载到 `.data`，属于可读写数据段 |          |        |
+| `bufp1` | 可读写数据段     | 未初始化全局指针，加载到 `.bss`，属于可读写数据段  |          |        |
+| `swap`  | 只读代码段      | 函数代码，加载到 `.text`，属于只读代码段      |          |        |
+| `temp`  | 用户栈        | 函数 `swap` 内的局部自动变量，运行时分配在栈帧中  |          |        |
+
+**m.c**
+```c
+void swap();
+int buf[2] = {1, 2};//在m.c定义，swap声明外部全局变量。
+int main()
+{
+    swap();
+    return 0;
+}
+```
+swap.c
+```c
+extern int buf[];
+int *bufp0 = &buf[0];//bufp0是已初始化全局变量
+int *bufp1;//buf1未初始化全局变量COMMON
+
+void swap()
+{
+    int temp;
+    bufp1 = &buf[1];
+    temp = *bufp0;
+    *bufp0 = *bufp1;
+    *bufp1 = temp;
+}
+```
+只读代码段：存放可执行指令，如函数 swap、main 的机器代码。
+可读写数据段：包括 .data 和 .bss。
+.data：已初始化的全局变量和静态变量，如 buf、bufp0。
+.bss：未初始化的全局变量和静态变量，如 bufp1。
+运行时堆：动态分配的内存，如 malloc 得到的区域，本题没有涉及。
+用户栈：存放函数调用栈帧、局部变量等，如 temp。
+内核区：操作系统内核使用的地址空间，用户程序不能直接访问，
+
+<div style="font-family:SimSun,serif;font-size:16px;line-height:1.5;width:320px;margin:0 auto;border:2px solid #333;">
+    <!-- 内核区 -->
+    <div style="background:#7788bb;color:#fff;padding:10px;text-align:center;border-bottom:1px solid #333;">内核区<br><small>用户不可访问</small></div>
+
+    <!-- 用户栈 -->
+    <div style="position:relative;background:#aaccff;padding:10px;text-align:center;border-bottom:1px solid #333;">
+        用户栈
+        <div style="position:absolute;right:8px;top:10px;bottom:0;width:2px;background:#000;">
+            <div style="position:absolute;top:0;right:-6px;width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:8px solid #000;"></div>
+        </div>
+        <span style="position:absolute;right:16px;top:20px;font-size:12px;">栈向下生长↓</span>
+    </div>
+
+    <!-- 空白间隔 -->
+    <div style="height:20px;background:#fff;border-bottom:1px solid #333;"></div>
+
+    <!-- 共享库内存映射区域 -->
+    <div style="position:relative;background:#bbddaa;padding:10px;text-align:center;border-bottom:1px solid #333;">
+        共享库内存映射区域
+        <div style="position:absolute;right:8px;top:10px;bottom:0;width:2px;background:#000;">
+            <div style="position:absolute;top:0;right:-6px;width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:8px solid #000;"></div>
+        </div>
+        <span style="position:absolute;right:16px;top:20px;font-size:12px;">映射区向下生长↓</span>
+    </div>
+
+    <!-- 空白间隔 -->
+    <div style="height:20px;background:#fff;border-bottom:1px solid #333;"></div>
+
+    <!-- 运行时堆 -->
+    <div style="position:relative;background:#ffddaa;padding:10px;text-align:center;border-bottom:1px solid #333;">
+        运行时堆
+        <div style="position:absolute;right:8px;bottom:10px;top:0;width:2px;background:#000;">
+            <div style="position:absolute;bottom:0;right:-6px;width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-bottom:8px solid #000;"></div>
+        </div>
+        <span style="position:absolute;right:16px;bottom:20px;font-size:12px;">堆向上生长↑</span>
+    </div>
+
+    <!-- 可读写数据段 -->
+    <div style="background:#ffcccc;padding:10px;text-align:center;border-bottom:1px solid #333;">可读写数据段<br><small>.data / .bss</small></div>
+
+    <!-- 只读代码段 -->
+    <div style="background:#dddddd;padding:10px;text-align:center;">只读代码段</div>
+</div>
+
+
 2️⃣装入时动态链接（**边装入边链接**）
 将程序编译后生成的目标模块，在装入内存时采用**边装入边链接**的方式。当装入某个目标模块时，若遇到对外部模块的调用，则装入程序会立即查找并装入相应的外部目标模块，并替换其中的外部符号。
-特点：1.**方便修改和更新**。静态链接只要任何一个模块改了一点，就必须重新打包、重新编译整个程序。装入时动态链接只需要单独换掉这个模块。2.**便于实现对于目标模块的共享**。静态链接每个应用程序包含其依赖模块的完整副本，无法共享（若100个程序用到printf，磁盘就会有100个printf副本）。装入时动态链接方式，OS可将同一个目标模块链接到多个应用程序中，实现共享。可节省内存空间。
+特点：1.**方便修改和更新**。静态链接只要任何一个模块改了一点，就必须重新打包、重新编译整个程序。装入时动态链接只需要单独换掉这个模块。2.**便于实现对于目标模块的共享**。静态链接每个应用程序包含其依赖模块的完整副本，无法共享（若100个程序用到printf，磁盘就会有100个printf副本）。装入时动态链接方式，OS可将同一个目标模块链接到多个应用程序中，实现共享。可节省内存空间。（底层使用mmap实现）
 具体来说，即printf模块在外存只有一个副本，在内存也只有一份代码(通常只读)，第二个程序要printf时，不加载新的副本，让第二个程序的地址空间指向内存中已由的printf。
 
 3️⃣运行时动态链接（**已装入完成，运行时链接**）
@@ -37,6 +297,8 @@ $n位地址 \Leftrightarrow 2^n 个存储单元$
 
 
 ## 内存保护
+#### 虚拟内存作为内存保护的工具
+
 确保各进程有独立内存空间，内存保护机制需在内存分配前防止用户进程破坏OS，同时避免用户进程互相干扰。由==**OS和硬件共同实现**==。
 方法：
 1️⃣**在CPU设置一对上下限寄存器**
@@ -102,7 +364,7 @@ $物理地址 \div 物理页存储单元个数 = 物理页号......页内地址$
 2️⃣判断页号是否越界，若$页号P\ge 页表长度M$,则产生**越界中断**;否则继续执行。
 3️⃣**根据页号P查找页表**，找出对应页表项的物理块号(页框号)。
 $页表项地址 = 页表基址F + 页号P \times 页表项长度$，取出该页表项中的**物理块号（页框号）b**
-
+#### 页表项(PTE)
 **页表项构成:其他信息位 + 物理页框号位**
 **页表由每个进程维护一个**，且**所有进程的页表都驻留在内存的内核空间**！
 $页表大小 = 页表项大小 \times 页表项个数$
@@ -514,8 +776,61 @@ D
 ##### 内存映射文件
 定义：OS向进程提供的系统调用机制，是<span style="color:rgb(255, 0, 0)">进程虚拟地址空间和磁盘文件的直接映射</span>。
 目的：使进程可以像访问内存一样访问文件。进程对虚拟地址内容进行操作，操作系统负责在缺页时将文件内容加载到物理内存页，在适当时机将修改写回磁盘。这种方式减少了系统调用和数据拷贝，提高了文件访问效率。
+
+mmap函数要求内核创建一个新的虚拟地址空间，最好是从start开始，并且将文件描述符fd指定的对象的一个连续组块chunk映射到这个新的区域。连续的组块chunk大小为length字节，从距文件开始偏移量offset字节的地方开始。
+```c
+void *mmap(void *start, size_t length, int prot, int flags, int fd, off_t offset);
+```
 **mmap不会立即拷贝文件到内存，缺页中断才加载（按需调页）**
 如果是私有映射，不会写回文件。共享映射会写回。
+munmap:取消映射。
+范例：
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
+int main(int argc, char *argv[]) {
+    if (argc != 2) {
+        fprintf(stderr, "Usage: %s <file>\n", argv[0]);
+        exit(1);
+    }
+
+    int fd = open(argv[1], O_RDONLY);
+    if (fd < 0) {
+        perror("open");
+        exit(1);
+    }
+
+    struct stat st;
+    fstat(fd, &st);
+    off_t size = st.st_size;
+
+    if (size == 0) {
+        close(fd);
+        return 0;               // 空文件，无输出
+    }
+
+    // 将文件映射到内存
+    char *data = mmap(NULL, size, PROT_READ, MAP_PRIVATE, fd, 0);
+    if (data == MAP_FAILED) {
+        perror("mmap");
+        exit(1);
+    }
+
+    // 写入标准输出（简化处理，未考虑部分写入）
+    write(STDOUT_FILENO, data, size);
+
+    // 解除映射并关闭文件
+    munmap(data, size);
+    close(fd);
+    return 0;
+}
+```
+
 
 虚拟内存由内核管理！
 ##### 普通文件内存映射
