@@ -1,0 +1,134 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>NRZ编码波形图</title>
+<style>
+  body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; margin-top: 30px; }
+  .controls { margin-bottom: 15px; }
+  input[type="text"] { width: 250px; padding: 5px; font-size: 16px; }
+  button { padding: 6px 15px; font-size: 16px; cursor: pointer; }
+  canvas { border: 1px solid #ccc; background: #fafafa; }
+</style>
+</head>
+<body>
+<h2>不归零编码 (NRZ-L) 波形图</h2>
+<div class="controls">
+  <label>输入二进制序列：</label>
+  <input type="text" id="binInput" value="10110010" placeholder="例如 10110010">
+  <button onclick="drawNRZ()">绘制波形</button>
+</div>
+<canvas id="nrzCanvas" width="800" height="300"></canvas>
+<script>
+function drawNRZ() {
+  const input = document.getElementById('binInput').value.trim();
+  const bits = input.replace(/[^01]/g, ''); // 只保留0和1
+  if (bits.length === 0) {
+    alert('请输入有效的二进制序列（仅包含0和1）');
+    return;
+  }
+  const canvas = document.getElementById('nrzCanvas');
+  const ctx = canvas.getContext('2d');
+  const bitWidth = 60;        // 每个比特占据的宽度
+  const marginLeft = 60;
+  const marginRight = 40;
+  const marginTop = 40;
+  const marginBottom = 40;
+  const plotWidth = bits.length * bitWidth;
+  const plotHeight = 120;     // 波形区域高度（从高电平到低电平）
+  const highY = marginTop;
+  const lowY = marginTop + plotHeight;
+  const midY = (highY + lowY) / 2;
+  
+  // 调整canvas尺寸
+  canvas.width = marginLeft + plotWidth + marginRight;
+  canvas.height = marginTop + plotHeight + marginBottom;
+  
+  // 清空
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  // 绘制标题
+  ctx.fillStyle = '#333';
+  ctx.font = '16px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('NRZ-L 编码波形', canvas.width/2, 25);
+  
+  // 绘制坐标轴
+  ctx.strokeStyle = '#999';
+  ctx.lineWidth = 1;
+  // 纵轴（电压）
+  ctx.beginPath();
+  ctx.moveTo(marginLeft, marginTop - 10);
+  ctx.lineTo(marginLeft, lowY + 20);
+  ctx.stroke();
+  // 横轴（时间）
+  ctx.beginPath();
+  ctx.moveTo(marginLeft - 10, midY);
+  ctx.lineTo(marginLeft + plotWidth + 10, midY);
+  ctx.stroke();
+  
+  // 绘制电平标签
+  ctx.fillStyle = '#333';
+  ctx.font = '12px sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText('高电平 (1)', marginLeft - 8, highY + 4);
+  ctx.fillText('低电平 (0)', marginLeft - 8, lowY + 4);
+  ctx.textAlign = 'center';
+  ctx.fillText('时间 →', marginLeft + plotWidth/2, lowY + 35);
+  
+  // 绘制网格线（每个比特周期边界）
+  ctx.strokeStyle = '#ddd';
+  ctx.setLineDash([4, 4]);
+  for (let i = 0; i <= bits.length; i++) {
+    const x = marginLeft + i * bitWidth;
+    ctx.beginPath();
+    ctx.moveTo(x, marginTop - 5);
+    ctx.lineTo(x, lowY + 15);
+    ctx.stroke();
+  }
+  ctx.setLineDash([]);
+  
+  // 绘制波形
+  ctx.strokeStyle = '#0066cc';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  let currentX = marginLeft;
+  let currentY = (bits[0] === '1') ? highY : lowY;
+  ctx.moveTo(currentX, currentY);
+  
+  for (let i = 0; i < bits.length; i++) {
+    const bit = bits[i];
+    const y = (bit === '1') ? highY : lowY;
+    // 如果电平改变，先画垂直线段到新电平
+    if (i > 0 && y !== currentY) {
+      ctx.lineTo(currentX, y);
+      currentY = y;
+    }
+    // 画水平线段到当前比特结束
+    const nextX = currentX + bitWidth;
+    ctx.lineTo(nextX, currentY);
+    currentX = nextX;
+    // 在bit中间标注数字
+    ctx.fillStyle = '#000';
+    ctx.font = 'bold 14px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(bit, currentX - bitWidth/2, (currentY === highY) ? highY - 8 : lowY + 18);
+  }
+  ctx.stroke();
+  
+  // 在底部标注比特序号
+  ctx.fillStyle = '#333';
+  ctx.font = '11px sans-serif';
+  ctx.textAlign = 'center';
+  for (let i = 0; i < bits.length; i++) {
+    const x = marginLeft + i * bitWidth + bitWidth/2;
+    ctx.fillText(i+1, x, lowY + 30);
+  }
+}
+
+// 初始绘制
+window.onload = drawNRZ;
+</script>
+</body>
+</html>

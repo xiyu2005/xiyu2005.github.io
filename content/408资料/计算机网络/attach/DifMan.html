@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>差分曼彻斯特编码波形图</title>
+<style>
+  body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; margin-top: 30px; }
+  .controls { margin-bottom: 15px; text-align: center; }
+  .rule-select { margin: 10px 0; font-size: 14px; }
+  input[type="text"] { width: 250px; padding: 5px; font-size: 16px; }
+  button { padding: 6px 15px; font-size: 16px; cursor: pointer; }
+  canvas { border: 1px solid #ccc; background: #fafafa; }
+</style>
+</head>
+<body>
+<h2>差分曼彻斯特编码波形图</h2>
+<div class="controls">
+  <label>输入二进制序列：</label>
+  <input type="text" id="binInput" value="10110010" placeholder="例如 10110010">
+  <button onclick="drawDifferentialManchester()">绘制波形</button>
+  <div class="rule-select">
+    <label><input type="radio" name="diffRule" value="zero_jump" checked> 0 表示比特开始处跳变（1 表示不跳变）</label>
+    <label><input type="radio" name="diffRule" value="one_jump"> 1 表示比特开始处跳变（0 表示不跳变）</label>
+  </div>
+</div>
+<canvas id="diffManchesterCanvas" width="800" height="300"></canvas>
+<script>
+function drawDifferentialManchester() {
+  const input = document.getElementById('binInput').value.trim();
+  const bits = input.replace(/[^01]/g, '');
+  if (bits.length === 0) {
+    alert('请输入有效的二进制序列（仅包含0和1）');
+    return;
+  }
+
+  // 获取编码规则
+  const ruleRadios = document.getElementsByName('diffRule');
+  let zeroJump = true; // 默认0跳变，1不跳变
+  for (const radio of ruleRadios) {
+    if (radio.checked) {
+      zeroJump = (radio.value === 'zero_jump');
+      break;
+    }
+  }
+
+  const canvas = document.getElementById('diffManchesterCanvas');
+  const ctx = canvas.getContext('2d');
+  const bitWidth = 60;
+  const marginLeft = 60;
+  const marginRight = 40;
+  const marginTop = 40;
+  const marginBottom = 60;
+  const plotWidth = bits.length * bitWidth;
+  const plotHeight = 140;
+  const highY = marginTop;
+  const lowY = marginTop + plotHeight;
+  const midY = (highY + lowY) / 2;
+
+  canvas.width = marginLeft + plotWidth + marginRight;
+  canvas.height = marginTop + plotHeight + marginBottom;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // 标题
+  ctx.fillStyle = '#333';
+  ctx.font = '16px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('差分曼彻斯特编码波形', canvas.width/2, 25);
+
+  // 坐标轴
+  ctx.strokeStyle = '#999';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(marginLeft, marginTop - 10);
+  ctx.lineTo(marginLeft, lowY + 20);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(marginLeft - 10, midY);
+  ctx.lineTo(marginLeft + plotWidth + 10, midY);
+  ctx.stroke();
+
+  // 电平标签
+  ctx.fillStyle = '#333';
+  ctx.font = '12px sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText('高电平', marginLeft - 8, highY + 4);
+  ctx.fillText('低电平', marginLeft - 8, lowY + 4);
+  ctx.textAlign = 'center';
+  ctx.fillText('时间 →', marginLeft + plotWidth/2, lowY + 35);
+
+  // 网格线（比特边界）
+  ctx.strokeStyle = '#ddd';
+  ctx.setLineDash([4, 4]);
+  for (let i = 0; i <= bits.length; i++) {
+    const x = marginLeft + i * bitWidth;
+    ctx.beginPath();
+    ctx.moveTo(x, marginTop - 5);
+    ctx.lineTo(x, lowY + 20);
+    ctx.stroke();
+  }
+  // 半周期虚线
+  ctx.strokeStyle = '#ccc';
+  ctx.setLineDash([2, 3]);
+  for (let i = 0; i < bits.length; i++) {
+    const x = marginLeft + i * bitWidth + bitWidth/2;
+    ctx.beginPath();
+    ctx.moveTo(x, marginTop - 5);
+    ctx.lineTo(x, lowY + 20);
+    ctx.stroke();
+  }
+  ctx.setLineDash([]);
+
+  // 波形绘制
+  ctx.strokeStyle = '#0066cc';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+
+  // 初始电平：设定为高电平（也可以设为低电平，不影响规则展示）
+  let lastLevel = highY; // 上一个比特结束时的电平
+  let currentX = marginLeft;
+  ctx.moveTo(currentX, lastLevel);
+
+  for (let i = 0; i < bits.length; i++) {
+    const bit = bits[i];
+    const startX = marginLeft + i * bitWidth;
+    const halfX = startX + bitWidth / 2;
+    const endX = startX + bitWidth;
+
+    // 确定比特开始处是否跳变
+    let shouldJumpAtStart;
+    if (zeroJump) {
+      // 0跳变，1不跳变
+      shouldJumpAtStart = (bit === '0');
+    } else {
+      // 1跳变，0不跳变
+      shouldJumpAtStart = (bit === '1');
+    }
+
+    // 当前比特前半段电平
+    let firstHalfLevel;
+    if (shouldJumpAtStart) {
+      // 跳变：与上一个结束电平相反
+      firstHalfLevel = (lastLevel === highY) ? lowY : highY;
+    } else {
+      // 不跳变：与上一个结束电平相同
+      firstHalfLevel = lastLevel;
+    }
+
+    // 后半段电平是前半段的相反
+    const secondHalfLevel = (firstHalfLevel === highY) ? lowY : highY;
+
+    // 从当前X位置画到 startX（应该相等，但为了保险）
+    if (currentX !== startX) {
+      ctx.lineTo(startX, lastLevel);
+      currentX = startX;
+    }
+
+    // 如果 startX 处需要跳变，画垂直线到 firstHalfLevel
+    ctx.lineTo(startX, firstHalfLevel);
+    // 画前半段水平线到 halfX
+    ctx.lineTo(halfX, firstHalfLevel);
+    // 中间跳变到 secondHalfLevel
+    ctx.lineTo(halfX, secondHalfLevel);
+    // 画后半段水平线到 endX
+    ctx.lineTo(endX, secondHalfLevel);
+
+    // 更新状态
+    lastLevel = secondHalfLevel;
+    currentX = endX;
+
+    // 标注比特值（放在前半段电平的上方或下方）
+    ctx.fillStyle = '#000';
+    ctx.font = 'bold 14px monospace';
+    ctx.textAlign = 'center';
+    const labelX = startX + bitWidth/2;
+    if (firstHalfLevel === highY) {
+      ctx.fillText(bit, labelX, highY - 8);
+    } else {
+      ctx.fillText(bit, labelX, lowY + 18);
+    }
+  }
+  ctx.stroke();
+
+  // 比特序号
+  ctx.fillStyle = '#333';
+  ctx.font = '11px sans-serif';
+  ctx.textAlign = 'center';
+  for (let i = 0; i < bits.length; i++) {
+    const x = marginLeft + i * bitWidth + bitWidth/2;
+    ctx.fillText(i+1, x, lowY + 30);
+  }
+
+  // 图例
+  ctx.fillStyle = '#333';
+  ctx.font = '12px sans-serif';
+  ctx.textAlign = 'left';
+  const ruleText = zeroJump ? '规则：比特开始处跳变表示 0，不跳变表示 1' : '规则：比特开始处跳变表示 1，不跳变表示 0';
+  ctx.fillText(ruleText, marginLeft, lowY + 50);
+}
+
+window.onload = drawDifferentialManchester;
+</script>
+</body>
+</html>

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>曼彻斯特编码波形图</title>
+<style>
+  body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; margin-top: 30px; }
+  .controls { margin-bottom: 15px; text-align: center; }
+  .standard-select { margin: 10px 0; font-size: 14px; }
+  input[type="text"] { width: 250px; padding: 5px; font-size: 16px; }
+  button { padding: 6px 15px; font-size: 16px; cursor: pointer; }
+  canvas { border: 1px solid #ccc; background: #fafafa; }
+</style>
+</head>
+<body>
+<h2>曼彻斯特编码波形图</h2>
+<div class="controls">
+  <label>输入二进制序列：</label>
+  <input type="text" id="binInput" value="10110010" placeholder="例如 10110010">
+  <button onclick="drawManchester()">绘制波形</button>
+  <div class="standard-select">
+    <label><input type="radio" name="standard" value="ieee" checked> IEEE 802.3（0：低→高，1：高→低）</label>
+    <label><input type="radio" name="standard" value="thomas"> G.E. Thomas（0：高→低，1：低→高）</label>
+  </div>
+</div>
+<canvas id="manchesterCanvas" width="800" height="300"></canvas>
+<script>
+function drawManchester() {
+  const input = document.getElementById('binInput').value.trim();
+  const bits = input.replace(/[^01]/g, ''); // 只保留0和1
+  if (bits.length === 0) {
+    alert('请输入有效的二进制序列（仅包含0和1）');
+    return;
+  }
+  // 获取选中的编码标准
+  const standardRadios = document.getElementsByName('standard');
+  let isIEEE = true; // 默认IEEE 802.3
+  for (const radio of standardRadios) {
+    if (radio.checked) {
+      isIEEE = (radio.value === 'ieee');
+      break;
+    }
+  }
+  
+  const canvas = document.getElementById('manchesterCanvas');
+  const ctx = canvas.getContext('2d');
+  const bitWidth = 60;        // 每个比特占据的宽度
+  const marginLeft = 60;
+  const marginRight = 40;
+  const marginTop = 40;
+  const marginBottom = 60;
+  const plotWidth = bits.length * bitWidth;
+  const plotHeight = 140;     // 从高电平到低电平的垂直距离
+  const highY = marginTop;
+  const lowY = marginTop + plotHeight;
+  const midY = (highY + lowY) / 2; // 中间电平（理论上不存在，但用于标注）
+  
+  // 调整canvas尺寸
+  canvas.width = marginLeft + plotWidth + marginRight;
+  canvas.height = marginTop + plotHeight + marginBottom;
+  
+  // 清空
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  // 绘制标题
+  ctx.fillStyle = '#333';
+  ctx.font = '16px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('曼彻斯特编码波形', canvas.width/2, 25);
+  
+  // 绘制坐标轴
+  ctx.strokeStyle = '#999';
+  ctx.lineWidth = 1;
+  // 纵轴（电压）
+  ctx.beginPath();
+  ctx.moveTo(marginLeft, marginTop - 10);
+  ctx.lineTo(marginLeft, lowY + 20);
+  ctx.stroke();
+  // 横轴（时间），在中间位置
+  ctx.beginPath();
+  ctx.moveTo(marginLeft - 10, midY);
+  ctx.lineTo(marginLeft + plotWidth + 10, midY);
+  ctx.stroke();
+  
+  // 绘制电平标签
+  ctx.fillStyle = '#333';
+  ctx.font = '12px sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText('高电平', marginLeft - 8, highY + 4);
+  ctx.fillText('低电平', marginLeft - 8, lowY + 4);
+  ctx.textAlign = 'center';
+  ctx.fillText('时间 →', marginLeft + plotWidth/2, lowY + 35);
+  
+  // 绘制网格线（每个比特周期边界）
+  ctx.strokeStyle = '#ddd';
+  ctx.setLineDash([4, 4]);
+  for (let i = 0; i <= bits.length; i++) {
+    const x = marginLeft + i * bitWidth;
+    ctx.beginPath();
+    ctx.moveTo(x, marginTop - 5);
+    ctx.lineTo(x, lowY + 20);
+    ctx.stroke();
+  }
+  // 绘制半周期虚线（跳变点）
+  ctx.strokeStyle = '#ccc';
+  ctx.setLineDash([2, 3]);
+  for (let i = 0; i < bits.length; i++) {
+    const x = marginLeft + i * bitWidth + bitWidth / 2;
+    ctx.beginPath();
+    ctx.moveTo(x, marginTop - 5);
+    ctx.lineTo(x, lowY + 20);
+    ctx.stroke();
+  }
+  ctx.setLineDash([]);
+  
+  // 绘制波形
+  ctx.strokeStyle = '#0066cc';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  
+  // 初始位置：从第一个比特开始
+  let currentX = marginLeft;
+  // 曼彻斯特编码不需要前序电平，直接根据第一个比特的前半段确定电平
+  let firstBit = bits[0];
+  let firstHalfLevel;
+  if (isIEEE) {
+    // IEEE: 0 -> 前半低，1 -> 前半高
+    firstHalfLevel = (firstBit === '0') ? lowY : highY;
+  } else {
+    // Thomas: 0 -> 前半高，1 -> 前半低
+    firstHalfLevel = (firstBit === '0') ? highY : lowY;
+  }
+  ctx.moveTo(currentX, firstHalfLevel);
+  
+  for (let i = 0; i < bits.length; i++) {
+    const bit = bits[i];
+    const startX = marginLeft + i * bitWidth;
+    const halfX = startX + bitWidth / 2;
+    const endX = startX + bitWidth;
+    
+    // 确定前半段和后半段电平
+    let firstLevel, secondLevel;
+    if (isIEEE) {
+      // IEEE 802.3: 0 = 低→高，1 = 高→低
+      if (bit === '0') {
+        firstLevel = lowY;
+        secondLevel = highY;
+      } else {
+        firstLevel = highY;
+        secondLevel = lowY;
+      }
+    } else {
+      // Thomas: 0 = 高→低，1 = 低→高
+      if (bit === '0') {
+        firstLevel = highY;
+        secondLevel = lowY;
+      } else {
+        firstLevel = lowY;
+        secondLevel = highY;
+      }
+    }
+    
+    // 如果当前X不等于startX（由于上一个比特结束在endX，正常情况下应该相等），
+    // 但若上一个比特结束时电平与当前比特前半段电平不同，需要在边界处画垂直线。
+    // 当前画图路径中，我们可以直接画到 startX 并调整Y，如果不同则自然形成垂直线。
+    // 先移动到 startX 并调整到 firstLevel
+    if (currentX !== startX) {
+      ctx.lineTo(startX, firstLevel);
+    } else {
+      // 如果当前Y不等于firstLevel，需要画垂直线到firstLevel
+      if (Math.abs(ctx.currentY - firstLevel) > 0.1) {
+        ctx.lineTo(startX, firstLevel);
+      }
+    }
+    // 确保currentY更新为firstLevel
+    let currentY = firstLevel;
+    
+    // 画前半段水平线到halfX
+    ctx.lineTo(halfX, currentY);
+    
+    // 跳变到secondLevel
+    ctx.lineTo(halfX, secondLevel);
+    currentY = secondLevel;
+    
+    // 画后半段水平线到endX
+    ctx.lineTo(endX, currentY);
+    currentX = endX;
+    
+    // 标注比特值（放在比特周期中间上方，根据电平决定上下位置）
+    ctx.fillStyle = '#000';
+    ctx.font = 'bold 14px monospace';
+    ctx.textAlign = 'center';
+    const labelX = startX + bitWidth/2;
+    // 如果前半段是高电平，标注在上方；否则下方
+    if (firstLevel === highY) {
+      ctx.fillText(bit, labelX, highY - 8);
+    } else {
+      ctx.fillText(bit, labelX, lowY + 18);
+    }
+  }
+  ctx.stroke();
+  
+  // 在底部标注比特序号
+  ctx.fillStyle = '#333';
+  ctx.font = '11px sans-serif';
+  ctx.textAlign = 'center';
+  for (let i = 0; i < bits.length; i++) {
+    const x = marginLeft + i * bitWidth + bitWidth/2;
+    ctx.fillText(i+1, x, lowY + 30);
+  }
+  
+  // 添加图例说明（动态显示当前标准）
+  ctx.fillStyle = '#333';
+  ctx.font = '12px sans-serif';
+  ctx.textAlign = 'left';
+  const standardText = isIEEE ? '标准：IEEE 802.3（0：低→高，1：高→低）' : '标准：G.E. Thomas（0：高→低，1：低→高）';
+  ctx.fillText(standardText, marginLeft, lowY + 50);
+}
+
+// 初始绘制
+window.onload = drawManchester;
+</script>
+</body>
+</html>

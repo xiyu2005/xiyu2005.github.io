@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>NRZI编码波形图（可调规则）</title>
+<style>
+  body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; margin-top: 30px; }
+  .controls { margin-bottom: 15px; text-align: center; }
+  .rule-select { margin: 10px 0; font-size: 14px; }
+  input[type="text"] { width: 250px; padding: 5px; font-size: 16px; }
+  button { padding: 6px 15px; font-size: 16px; cursor: pointer; }
+  canvas { border: 1px solid #ccc; background: #fafafa; }
+</style>
+</head>
+<body>
+<h2>反向不归零编码 (NRZI) 波形图</h2>
+<div class="controls">
+  <label>输入二进制序列：</label>
+  <input type="text" id="binInput" value="10110010" placeholder="例如 10110010">
+  <button onclick="drawNRZI()">绘制波形</button>
+  <div class="rule-select">
+    <label><input type="radio" name="nrzirule" value="jump1" checked> 跳变表示 1（默认）</label>
+    <label><input type="radio" name="nrzirule" value="nojump1"> 不跳变表示 1</label>
+  </div>
+</div>
+<canvas id="nrziCanvas" width="800" height="300"></canvas>
+<script>
+function drawNRZI() {
+  const input = document.getElementById('binInput').value.trim();
+  const bits = input.replace(/[^01]/g, ''); // 只保留0和1
+  if (bits.length === 0) {
+    alert('请输入有效的二进制序列（仅包含0和1）');
+    return;
+  }
+  // 获取选中的编码规则
+  const ruleRadios = document.getElementsByName('nrzirule');
+  let jumpForOne = true; // 默认跳变表示1
+  for (const radio of ruleRadios) {
+    if (radio.checked) {
+      jumpForOne = (radio.value === 'jump1');
+      break;
+    }
+  }
+  
+  const canvas = document.getElementById('nrziCanvas');
+  const ctx = canvas.getContext('2d');
+  const bitWidth = 60;        // 每个比特占据的宽度
+  const marginLeft = 60;
+  const marginRight = 40;
+  const marginTop = 40;
+  const marginBottom = 60;
+  const plotWidth = bits.length * bitWidth;
+  const plotHeight = 140;     // 从高电平到低电平的垂直距离
+  const highY = marginTop;
+  const lowY = marginTop + plotHeight;
+  
+  // 调整canvas尺寸
+  canvas.width = marginLeft + plotWidth + marginRight;
+  canvas.height = marginTop + plotHeight + marginBottom;
+  
+  // 清空
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  // 绘制标题
+  ctx.fillStyle = '#333';
+  ctx.font = '16px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('NRZI 编码波形', canvas.width/2, 25);
+  
+  // 绘制坐标轴
+  ctx.strokeStyle = '#999';
+  ctx.lineWidth = 1;
+  // 纵轴（电压）
+  ctx.beginPath();
+  ctx.moveTo(marginLeft, marginTop - 10);
+  ctx.lineTo(marginLeft, lowY + 20);
+  ctx.stroke();
+  // 横轴（时间），在中间偏下位置
+  ctx.beginPath();
+  ctx.moveTo(marginLeft - 10, lowY + 10);
+  ctx.lineTo(marginLeft + plotWidth + 10, lowY + 10);
+  ctx.stroke();
+  
+  // 绘制电平标签
+  ctx.fillStyle = '#333';
+  ctx.font = '12px sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText('高电平', marginLeft - 8, highY + 4);
+  ctx.fillText('低电平', marginLeft - 8, lowY + 4);
+  ctx.textAlign = 'center';
+  ctx.fillText('时间 →', marginLeft + plotWidth/2, lowY + 35);
+  
+  // 绘制网格线（每个比特周期边界）
+  ctx.strokeStyle = '#ddd';
+  ctx.setLineDash([4, 4]);
+  for (let i = 0; i <= bits.length; i++) {
+    const x = marginLeft + i * bitWidth;
+    ctx.beginPath();
+    ctx.moveTo(x, marginTop - 5);
+    ctx.lineTo(x, lowY + 20);
+    ctx.stroke();
+  }
+  ctx.setLineDash([]);
+  
+  // 绘制波形
+  ctx.strokeStyle = '#0066cc';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  
+  // 初始电平设为高电平
+  let currentY = highY;
+  let currentX = marginLeft;
+  ctx.moveTo(currentX, currentY);
+  
+  for (let i = 0; i < bits.length; i++) {
+    const bit = bits[i];
+    const startX = marginLeft + i * bitWidth;
+    const endX = startX + bitWidth;
+    
+    // 如果存在水平间距（上一个比特结束于endX，新比特开始于startX，通常相等，但保险起见）
+    if (startX !== currentX) {
+      ctx.lineTo(startX, currentY);
+      currentX = startX;
+    }
+    
+    // 根据规则判断是否需要跳变
+    let shouldFlip = false;
+    if (jumpForOne) {
+      // 跳变表示1：bit=1时翻转
+      shouldFlip = (bit === '1');
+    } else {
+      // 不跳变表示1：bit=0时翻转
+      shouldFlip = (bit === '0');
+    }
+    
+    if (shouldFlip) {
+      const newY = (currentY === highY) ? lowY : highY;
+      // 在比特开始处画垂直线表示跳变
+      ctx.lineTo(startX, newY);
+      currentY = newY;
+    }
+    // 如果不需要跳变，保持当前电平
+    
+    // 画水平线到比特结束
+    ctx.lineTo(endX, currentY);
+    currentX = endX;
+    
+    // 标注比特值（放在比特周期中间上方或下方）
+    ctx.fillStyle = '#000';
+    ctx.font = 'bold 14px monospace';
+    ctx.textAlign = 'center';
+    const labelX = startX + bitWidth/2;
+    ctx.fillText(bit, labelX, currentY === highY ? highY - 8 : lowY + 18);
+  }
+  ctx.stroke();
+  
+  // 在底部标注比特序号
+  ctx.fillStyle = '#333';
+  ctx.font = '11px sans-serif';
+  ctx.textAlign = 'center';
+  for (let i = 0; i < bits.length; i++) {
+    const x = marginLeft + i * bitWidth + bitWidth/2;
+    ctx.fillText(i+1, x, lowY + 30);
+  }
+  
+  // 添加图例说明（动态显示当前规则）
+  ctx.fillStyle = '#333';
+  ctx.font = '12px sans-serif';
+  ctx.textAlign = 'left';
+  const ruleText = jumpForOne ? '规则：电平跳变表示 1，不跳变表示 0' : '规则：不跳变表示 1，电平跳变表示 0';
+  ctx.fillText(ruleText, marginLeft, lowY + 50);
+}
+
+// 初始绘制
+window.onload = drawNRZI;
+</script>
+</body>
+</html>
