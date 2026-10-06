@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IPv4 分片交互教学 · MTU=1500B</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', system-ui, sans-serif;
+      background: #eef3fa;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .app {
+      max-width: 920px;
+      width: 100%;
+      background: #ffffff;
+      border-radius: 24px;
+      box-shadow: 0 16px 40px -12px rgba(10, 30, 60, 0.2);
+      padding: 28px 30px 32px;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #0b1e33;
+      letter-spacing: -0.3px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    h1::before {
+      content: '';
+      display: inline-block;
+      width: 8px;
+      height: 28px;
+      border-radius: 4px;
+      background: linear-gradient(180deg, #3b82f6, #1d4ed8);
+    }
+
+    .subtitle {
+      color: #5b6f87;
+      font-size: 0.9rem;
+      margin: 6px 0 20px 18px;
+      font-family: 'SF Mono', Consolas, monospace;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    button {
+      padding: 9px 20px;
+      border: 1.5px solid #dbe5ef;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      background: #eef3fa;
+      color: #1e3a5f;
+      transition: all 0.18s ease;
+    }
+
+    button:hover:not(:disabled) {
+      background: #e0eaf6;
+      transform: translateY(-1px);
+    }
+
+    button:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    button:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    #nextBtn {
+      background: linear-gradient(180deg, #3b82f6, #2563eb);
+      color: #fff;
+      border-color: #2563eb;
+      box-shadow: 0 4px 10px -4px rgba(37, 99, 235, 0.5);
+    }
+
+    #nextBtn:hover:not(:disabled) {
+      background: linear-gradient(180deg, #2563eb, #1d4ed8);
+    }
+
+    #resetBtn {
+      background: #fff;
+      color: #64748b;
+    }
+
+    #stepIndicator {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #1e40af;
+      background: #dbeafe;
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-family: 'SF Mono', Consolas, monospace;
+      white-space: nowrap;
+    }
+
+    /* ===== 画布区域 ===== */
+    .canvas {
+      background: #fafcff;
+      border: 2px solid #e4edf7;
+      border-radius: 16px;
+      padding: 22px 20px;
+      min-height: 180px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 16px;
+      overflow-x: auto;
+    }
+
+    .packet {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: nowrap;
+    }
+
+    .packet-label {
+      width: 74px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #1e3a5f;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .packet-bar {
+      display: flex;
+      height: 34px;
+      border-radius: 7px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+      border: 1px solid #cbd5e1;
+      flex-shrink: 0;
+    }
+
+    .ip-header {
+      background: #1e3a5f;
+      color: #fff;
+      font-size: 0.68rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      flex-shrink: 0;
+      font-family: 'SF Mono', Consolas, monospace;
+    }
+
+    .data {
+      background: #93c5fd;
+      color: #0b1e33;
+      font-size: 0.7rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-family: 'SF Mono', Consolas, monospace;
+      transition: width 0.5s ease;
+      min-width: 40px;
+    }
+
+    .packet-info {
+      font-size: 0.73rem;
+      color: #475569;
+      font-family: 'SF Mono', Consolas, monospace;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .original .data {
+      background: #a5b4fc;
+    }
+
+    .fragment .data {
+      background: #6ee7b7;
+    }
+
+    .fragment .ip-header {
+      background: #065f46;
+    }
+
+    /* 分片出现动画 */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .packet.fragment {
+      animation: fadeIn 0.45s ease-out;
+    }
+
+    /* 重组说明 */
+    .reassemble-info {
+      background: #f0fdf4;
+      border: 2px solid #86efac;
+      border-radius: 14px;
+      padding: 18px 22px;
+      margin-top: 6px;
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    .reassemble-info h3 {
+      color: #166534;
+      margin-bottom: 10px;
+      font-size: 1rem;
+    }
+
+    .reassemble-info p {
+      font-size: 0.85rem;
+      color: #14532d;
+      line-height: 1.8;
+      font-family: 'SF Mono', Consolas, monospace;
+    }
+
+    /* ===== 文字讲解 ===== */
+    .explain {
+      background: #f0f7ff;
+      border-left: 4px solid #3b82f6;
+      border-radius: 0 12px 12px 0;
+      padding: 14px 18px;
+      font-size: 0.9rem;
+      color: #24405e;
+      line-height: 1.7;
+      margin-bottom: 18px;
+      min-height: 64px;
+    }
+
+    /* ===== 表格 ===== */
+    .table-container {
+      overflow-x: auto;
+      border-radius: 14px;
+      border: 2px solid #e4edf7;
+      margin-bottom: 18px;
+      background: #fff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+      font-family: 'SF Mono', Consolas, monospace;
+    }
+
+    th {
+      background: #f1f7fe;
+      color: #1e3a5f;
+      padding: 11px 14px;
+      text-align: left;
+      border-bottom: 2px solid #dbe5ef;
+      font-weight: 700;
+      font-size: 0.76rem;
+      letter-spacing: 0.3px;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 9px 14px;
+      border-bottom: 1px solid #eef3fa;
+      color: #1e3a5f;
+      font-size: 0.78rem;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* 考点注解 */
+    .notes {
+      background: #f8fafc;
+      border-radius: 14px;
+      padding: 18px 22px;
+      border: 1.5px solid #e2e8f0;
+    }
+
+    .notes h3 {
+      font-size: 0.95rem;
+      color: #0b1e33;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .notes h3::before {
+      content: '📘';
+      font-size: 1.1rem;
+    }
+
+    .notes ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .notes li {
+      font-size: 0.85rem;
+      color: #334155;
+      line-height: 1.8;
+      padding-left: 22px;
+      position: relative;
+      margin-bottom: 4px;
+    }
+
+    .notes li::before {
+      content: '•';
+      position: absolute;
+      left: 6px;
+      color: #3b82f6;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .notes code {
+      background: #e9f0f9;
+      padding: 2px 7px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      color: #1e40af;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <h1>IPv4 分片交互演示</h1>
+    <div class="subtitle">
+      链路 MTU = 1500B &nbsp;|&nbsp; 原始数据包 = 4000B (20B 首部 + 3980B 数据)
+    </div>
+
+    <!-- 控制按钮 -->
+    <div class="controls">
+      <button id="prevBtn" disabled>← 上一步</button>
+      <span id="stepIndicator">步骤 0 / 4</span>
+      <button id="nextBtn">下一步 →</button>
+      <button id="resetBtn">重置</button>
+    </div>
+
+    <!-- 画布区域 -->
+    <div class="canvas" id="canvas"></div>
+
+    <!-- 文字讲解 -->
+    <div class="explain" id="explain"></div>
+
+    <!-- 分片参数表格 -->
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>分片</th>
+            <th>总长度 (B)</th>
+            <th>数据长度 (B)</th>
+            <th>MF</th>
+            <th>片偏移 (十进制)</th>
+            <th>片偏移 (字节)</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+
+    <!-- 考点注解 -->
+    <div class="notes">
+      <h3>分片考点注解</h3>
+      <ul>
+        <li>分片数据长度（除最后一片外）必须是 <code>8 字节的倍数</code>，否则无法用片偏移字段表示。</li>
+        <li>片偏移字段的单位是 <code>8 字节</code>，实际字节偏移 = 片偏移字段值 × 8。</li>
+        <li><code>MF=1</code> 表示后面还有分片，<code>MF=0</code> 表示这是最后一片。</li>
+        <li>分片重组依靠：相同标识 ID、片偏移排序、MF 判断结束分片。</li>
+        <li>每个分片都有独立的 IP 首部（20B），总长度 = 20B + 数据长度。</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    // ==================== 常量与分片计算 ====================
+    const MTU = 1500;               // 链路 MTU
+    const HEADER_LEN = 20;          // IP 首部长度
+    const TOTAL_LEN = 4000;         // 原始报文总长
+    const DATA_LEN = TOTAL_LEN - HEADER_LEN;  // 3980
+    const MAX_DATA = MTU - HEADER_LEN;        // 1480
+    const IDENTIFICATION = 0x1234;  // 示例标识 ID
+
+    // 自动计算分片
+    const fragments = [];
+    let offsetBytes = 0;
+    let remaining = DATA_LEN;
+    let idx = 0;
+
+    while (remaining > 0) {
+      let dataLen = Math.min(remaining, MAX_DATA);
+      let isLast = (remaining - dataLen) === 0;
+      let mf = isLast ? 0 : 1;
+      let offsetField = offsetBytes / 8;
+
+      fragments.push({
+        index: idx++,
+        totalLen: dataLen + HEADER_LEN,
+        dataLen: dataLen,
+        mf: mf,
+        offsetBytes: offsetBytes,
+        offsetField: offsetField
+      });
+
+      offsetBytes += dataLen;
+      remaining -= dataLen;
+    }
+
+    // ==================== 步骤文字讲解 ====================
+    const explainTexts = [
+      '步骤 0：原始 IP 报文总长 4000B（20B 首部 + 3980B 数据）。出口链路 MTU=1500B，报文长度超过 MTU，必须分片。',
+      '步骤 1：生成分片 1。数据部分取 1480B（1500-20），总长 1500B。片偏移=0，MF=1（表示后面还有分片）。',
+      '步骤 2：生成分片 2。数据部分再取 1480B，总长 1500B。片偏移=1480/8=185，MF=1。',
+      '步骤 3：生成分片 3。剩余数据 1020B，总长 1040B。片偏移=2960/8=370，MF=0（最后一片）。',
+      '步骤 4：分片重组。依靠相同标识 ID、片偏移排序、MF 判断结束分片，将数据拼接还原为原始 3980B 数据。'
+    ];
+
+    // ==================== 全局状态 ====================
+    let currentStep = 0;
+    const maxStep = 4;
+
+    // DOM 元素
+    const canvasEl = document.getElementById('canvas');
+    const tableBody = document.getElementById('tableBody');
+    const explainEl = document.getElementById('explain');
+    const stepIndicator = document.getElementById('stepIndicator');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const resetBtn = document.getElementById('resetBtn');
+
+    // ==================== 渲染函数 ====================
+    function render() {
+      renderCanvas();
+      renderTable();
+      renderExplain();
+      updateControls();
+    }
+
+    function renderCanvas() {
+      canvasEl.innerHTML = '';
+
+      // 1. 原始报文（始终显示）
+      const originalDiv = document.createElement('div');
+      originalDiv.className = 'packet original';
+      originalDiv.innerHTML = `
+        <div class="packet-label">原始报文</div>
+        <div class="packet-bar">
+          <div class="ip-header" style="width:24px;">20B</div>
+          <div class="data" style="width:576px;">3980B</div>
+        </div>
+        <div class="packet-info">总长 4000B</div>
+      `;
+      canvasEl.appendChild(originalDiv);
+
+      // 2. 已生成的分片
+      for (let i = 0; i < currentStep; i++) {
+        const frag = fragments[i];
+        // 数据区宽度按比例：3980B 对应 576px
+        const dataWidth = Math.round((frag.dataLen / DATA_LEN) * 576);
+
+        const fragDiv = document.createElement('div');
+        fragDiv.className = 'packet fragment';
+        fragDiv.innerHTML = `
+          <div class="packet-label">分片 ${i + 1}</div>
+          <div class="packet-bar">
+            <div class="ip-header" style="width:24px;">20B</div>
+            <div class="data" style="width:${dataWidth}px;">${frag.dataLen}B</div>
+          </div>
+          <div class="packet-info">总长 ${frag.totalLen}B | MF=${frag.mf} | 偏移=${frag.offsetField}</div>
+        `;
+        canvasEl.appendChild(fragDiv);
+      }
+
+      // 3. 步骤 4 显示重组说明
+      if (currentStep === 4) {
+        const reassembleDiv = document.createElement('div');
+        reassembleDiv.className = 'reassemble-info';
+        reassembleDiv.innerHTML = `
+          <h3>分片重组逻辑</h3>
+          <p>① 相同标识 ID = 0x${IDENTIFICATION.toString(16).toUpperCase()} 确保属于同一原始报文</p>
+          <p>② 按片偏移字段排序：0 → 185 → 370</p>
+          <p>③ MF=1 表示后面还有分片，MF=0 表示最后一片</p>
+          <p>④ 将各分片数据部分按偏移拼接，恢复原始 3980B 数据</p>
+        `;
+        canvasEl.appendChild(reassembleDiv);
+      }
+    }
+
+    function renderTable() {
+      tableBody.innerHTML = '';
+      for (let i = 0; i < currentStep; i++) {
+        const frag = fragments[i];
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${i + 1}</td>
+          <td>${frag.totalLen}</td>
+          <td>${frag.dataLen}</td>
+          <td>${frag.mf}</td>
+          <td>${frag.offsetField}</td>
+          <td>${frag.offsetBytes}</td>
+        `;
+        tableBody.appendChild(tr);
+      }
+    }
+
+    function renderExplain() {
+      explainEl.textContent = explainTexts[currentStep];
+    }
+
+    function updateControls() {
+      stepIndicator.textContent = `步骤 ${currentStep} / ${maxStep}`;
+      prevBtn.disabled = currentStep === 0;
+      nextBtn.disabled = currentStep === maxStep;
+    }
+
+    // ==================== 事件绑定 ====================
+    prevBtn.addEventListener('click', () => {
+      if (currentStep > 0) {
+        currentStep--;
+        render();
+      }
+    });
+
+    nextBtn.addEventListener('click', () => {
+      if (currentStep < maxStep) {
+        currentStep++;
+        render();
+      }
+    });
+
+    resetBtn.addEventListener('click', () => {
+      currentStep = 0;
+      render();
+    });
+
+    // ==================== 初始化 ====================
+    render();
+  </script>
+</body>
+</html>

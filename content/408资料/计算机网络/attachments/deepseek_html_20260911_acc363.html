@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>跨网段 ARP 传输 · 交互式教学</title>
+<style>
+  /* ========== 全局基础样式 ========== */
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', system-ui, sans-serif;
+    background: #eef2f8;
+    color: #1a2639;
+    padding: 20px;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ========== 主容器 ========== */
+  .app {
+    max-width: 1180px;
+    margin: 0 auto;
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 20px 50px -20px rgba(10, 30, 60, 0.28);
+    padding: 24px 28px 32px;
+  }
+
+  /* ========== 顶部栏 ========== */
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    padding-bottom: 18px;
+    border-bottom: 2px solid #eef3fa;
+    margin-bottom: 20px;
+  }
+
+  .title-group h1 {
+    font-size: 1.45rem;
+    font-weight: 700;
+    color: #0b1e33;
+    letter-spacing: -0.3px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .title-group h1::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 26px;
+    border-radius: 4px;
+    background: linear-gradient(180deg, #3b82f6, #1d4ed8);
+  }
+
+  .subtitle {
+    font-size: 0.82rem;
+    color: #64748b;
+    margin-top: 6px;
+    padding-left: 18px;
+    font-family: 'SF Mono', Consolas, monospace;
+  }
+
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    border: none;
+    border-radius: 10px;
+    padding: 9px 18px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    background: #eef3fa;
+    color: #1e3a5f;
+    border: 1.5px solid #dbe5ef;
+  }
+
+  .btn:hover:not(:disabled) {
+    background: #e0eaf6;
+    transform: translateY(-1px);
+  }
+
+  .btn:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  .btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .btn.primary {
+    background: linear-gradient(180deg, #3b82f6, #2563eb);
+    color: #fff;
+    border-color: #2563eb;
+    box-shadow: 0 4px 12px -4px rgba(37, 99, 235, 0.6);
+  }
+
+  .btn.primary:hover:not(:disabled) {
+    background: linear-gradient(180deg, #2563eb, #1d4ed8);
+  }
+
+  .btn.ghost {
+    background: #fff;
+    color: #64748b;
+  }
+
+  .step-indicator {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #1e40af;
+    background: #dbeafe;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-family: 'SF Mono', Consolas, monospace;
+    white-space: nowrap;
+  }
+
+  /* ========== 画布区域 ========== */
+  .canvas-wrap {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 2px solid #e4edf7;
+    background: #fbfdff;
+    margin-bottom: 18px;
+  }
+
+  #topoCanvas {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  /* ========== 数据包封装弹窗 ========== */
+  .pkt-popup {
+    position: absolute;
+    left: 16px;
+    top: 16px;
+    width: 356px;
+    max-width: calc(100% - 32px);
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(6px);
+    border: 2px solid #3b82f6;
+    border-radius: 12px;
+    box-shadow: 0 12px 30px -10px rgba(15, 40, 80, 0.35);
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(-8px) scale(0.97);
+    transition: opacity 0.28s ease, transform 0.28s ease;
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  .pkt-popup.show {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  .pkt-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 7px 12px;
+    background: #dbeafe;
+    color: #1e40af;
+    letter-spacing: 0.2px;
+  }
+
+  .pkt-row {
+    display: flex;
+    gap: 8px;
+    padding: 7px 12px;
+    border-top: 1px solid #eef3fa;
+    align-items: flex-start;
+  }
+
+  .pkt-tag {
+    flex-shrink: 0;
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 6px;
+    margin-top: 1px;
+    letter-spacing: 0.3px;
+  }
+
+  .pkt-tag.l2 {
+    background: #fef3c7;
+    color: #b45309;
+  }
+
+  .pkt-tag.l3 {
+    background: #e0e7ff;
+    color: #4338ca;
+  }
+
+  .pkt-body {
+    font-size: 0.72rem;
+    line-height: 1.6;
+    color: #334155;
+    font-family: 'SF Mono', Consolas, monospace;
+    word-break: break-all;
+  }
+
+  /* ========== 文字讲解区 ========== */
+  .explain {
+    display: flex;
+    gap: 12px;
+    background: #f0f7ff;
+    border-left: 4px solid #3b82f6;
+    border-radius: 0 12px 12px 0;
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    min-height: 76px;
+    align-items: flex-start;
+  }
+
+  .explain-icon {
+    font-size: 1.1rem;
+    line-height: 1.5;
+    flex-shrink: 0;
+  }
+
+  .explain p {
+    font-size: 0.9rem;
+    line-height: 1.72;
+    color: #24405e;
+  }
+
+  .explain strong {
+    color: #b45309;
+  }
+
+  /* ========== 表格区 ========== */
+  .tables {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+
+  @media (max-width: 820px) {
+    .tables {
+      grid-template-columns: 1fr;
+    }
+    .topbar {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+
+  .table-card {
+    border: 2px solid #e4edf7;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #fff;
+  }
+
+  .table-card h3 {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #0b1e33;
+    padding: 11px 16px;
+    background: #f6faff;
+    border-bottom: 1.5px solid #e4edf7;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 3px;
+    display: inline-block;
+  }
+
+  .card-dot.blue {
+    background: #3b82f6;
+  }
+
+  .card-dot.red {
+    background: #ef4444;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.78rem;
+  }
+
+  th {
+    text-align: left;
+    padding: 9px 14px;
+    background: #f8fbfe;
+    color: #526d8a;
+    font-weight: 600;
+    font-size: 0.74rem;
+    letter-spacing: 0.4px;
+    border-bottom: 1.5px solid #e9f0f8;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 9px 14px;
+    border-bottom: 1px solid #f0f5fa;
+    color: #24405e;
+    font-family: 'SF Mono', Consolas, monospace;
+    font-size: 0.75rem;
+    transition: background 0.3s ease;
+  }
+
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  /* 新增行 — 红色高亮 */
+  tr.row-new td {
+    background: #fee2e2 !important;
+    color: #991b1b;
+    font-weight: 600;
+    animation: flashRow 1.4s ease-out;
+  }
+
+  tr.row-new td:first-child {
+    box-shadow: inset 3px 0 0 #ef4444;
+  }
+
+  @keyframes flashRow {
+    0% {
+      background: #fca5a5;
+    }
+    100% {
+      background: #fee2e2;
+    }
+  }
+
+  /* 路由命中行高亮 */
+  tr.row-active td {
+    background: #dbeafe;
+    color: #1e40af;
+    font-weight: 600;
+  }
+
+  .empty-row td {
+    color: #9aa9bb;
+    font-style: italic;
+    text-align: center;
+    padding: 22px 14px;
+    font-family: inherit;
+  }
+
+  /* ========== 底部小贴士 ========== */
+  .tip {
+    margin-top: 18px;
+    font-size: 0.8rem;
+    color: #526d8a;
+    background: #f8fbfe;
+    border: 1.5px dashed #d7e5f3;
+    border-radius: 12px;
+    padding: 12px 16px;
+    display: flex;
+    gap: 10px;
+    line-height: 1.65;
+  }
+
+  .tip b {
+    color: #b45309;
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ============ 顶部操作栏 ============ -->
+  <header class="topbar">
+    <div class="title-group">
+      <h1>跨网段 ARP 传输</h1>
+      <p class="subtitle">PC1 192.168.1.10/24 &nbsp;→&nbsp; PC2 10.0.0.20/24 &nbsp;|&nbsp; 路由器 R 双网卡</p>
+    </div>
+    <div class="controls">
+      <button id="prevBtn" class="btn" disabled>← 上一步</button>
+      <span id="stepIndicator" class="step-indicator">步骤 0 / 6</span>
+      <button id="nextBtn" class="btn primary">下一步 →</button>
+      <button id="resetBtn" class="btn ghost">重置</button>
+    </div>
+  </header>
+
+  <!-- ============ 网络拓扑画布 ============ -->
+  <div class="canvas-wrap">
+    <canvas id="topoCanvas"></canvas>
+
+    <!-- 数据包封装结构弹窗（HTML 浮层，随步骤更新） -->
+    <div class="pkt-popup" id="pktPopup">
+      <div class="pkt-title" id="pktTitle">数据包封装</div>
+      <div class="pkt-row">
+        <span class="pkt-tag l2">二层</span>
+        <div class="pkt-body" id="pktL2">—</div>
+      </div>
+      <div class="pkt-row">
+        <span class="pkt-tag l3">三层</span>
+        <div class="pkt-body" id="pktL3">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 文字讲解 ============ -->
+  <div class="explain">
+    <span class="explain-icon">💡</span>
+    <p id="explainText">演示尚未开始。点击「下一步」逐步查看跨网段 ARP 与帧转发的完整过程。</p>
+  </div>
+
+  <!-- ============ 两张数据表 ============ -->
+  <div class="tables">
+
+    <!-- 路由转发表 -->
+    <div class="table-card">
+      <h3><span class="card-dot blue"></span>路由器 R · 路由转发表</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>目的网络</th>
+            <th>出接口</th>
+            <th>下一跳</th>
+            <th>类型</th>
+          </tr>
+        </thead>
+        <tbody id="routeBody"></tbody>
+      </table>
+    </div>
+
+    <!-- ARP 缓存表 -->
+    <div class="table-card">
+      <h3><span class="card-dot red"></span>ARP 缓存表（各设备）</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>所属设备</th>
+            <th>IP 地址</th>
+            <th>MAC 地址</th>
+            <th>说明</th>
+          </tr>
+        </thead>
+        <tbody id="arpBody"></tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- ============ 底部提示 ============ -->
+  <div class="tip">
+    <span>🔎</span>
+    <div>
+      <b>核心原理：</b>ARP 广播无法跨越路由器。PC1 只能解析到直连网段内网关的 MAC；
+      路由器要转发到 10.0.0.0/24，必须在外网口 G0/1 再发起一次 ARP 请求解析 PC2 的 MAC。
+      整个过程中三层 IP 地址始终不变，只有二层 MAC 地址逐跳被替换。
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* =========================================================
+ *  跨网段 ARP 传输 · 交互式教学
+ *  ---------------------------------------------------------
+ *  拓扑：
+ *    PC1  192.168.1.10/24   MAC AA:AA:AA:AA:AA:AA
+ *    R    G0/0 192.168.1.1  MAC BB:BB:BB:BB:BB:BB
+ *         G0/1 10.0.0.1     MAC CC:CC:CC:CC:CC:CC
+ *    PC2  10.0.0.20/24      MAC DD:DD:DD:DD:DD:DD
+ * ========================================================= */
+
+/* ---------- 1. 常量与坐标定义 ---------- */
+
+const W = 900;   // 画布逻辑宽度
+const H = 420;   // 画布逻辑高度
+
+// 设备盒子的位置与尺寸
+const BOX = {
+  pc1:    { x: 55,  y: 185, w: 150, h: 110 },
+  pc2:    { x: 695, y: 185, w: 150, h: 110 },
+  router: { x: 320, y: 150, w: 260, h: 180 }
+};
+
+// 链路端点（数据包动画起止点），y 统一为 240
+const PORT = {
+  pc1Out: [205, 240],   // PC1 网卡出口
+  rInL:   [320, 240],   // 路由器 G0/0
+  rInR:   [580, 240],   // 路由器 G0/1
+  pc2In:  [695, 240]    // PC2 网卡入口
+};
+
+// 每一步的动画与封装结构定义
+const STEP_ANIM = {
+  1: {
+    from: PORT.pc1Out, to: PORT.rInL,
+    color: '#f59e0b',
+    title: '① ARP 请求（广播）  PC1 → 网关',
+    l2: '目的MAC: FF:FF:FF:FF:FF:FF（广播）｜ 源MAC: AA:AA:AA:AA:AA:AA ｜ 类型: 0x0806 (ARP)',
+    l3: 'ARP 请求 — 发送方IP: 192.168.1.10 ｜ 目标IP: 192.168.1.1（网关，不是 PC2！）'
+  },
+  2: {
+    from: PORT.rInL, to: PORT.pc1Out,
+    color: '#10b981',
+    title: '② ARP 应答（单播）  网关 → PC1',
+    l2: '目的MAC: AA:AA:AA:AA:AA:AA ｜ 源MAC: BB:BB:BB:BB:BB:BB ｜ 类型: 0x0806 (ARP)',
+    l3: 'ARP 应答 — 发送方IP: 192.168.1.1 ｜ 目标IP: 192.168.1.10'
+  },
+  3: {
+    from: PORT.pc1Out, to: PORT.rInL,
+    color: '#3b82f6',
+    title: '③ 数据帧  PC1 → 网关',
+    l2: '目的MAC: BB:BB:BB:BB:BB:BB（网关）｜ 源MAC: AA:AA:AA:AA:AA:AA ｜ 类型: 0x0800 (IPv4)',
+    l3: '源IP: 192.168.1.10 ｜ 目的IP: 10.0.0.20（PC2）｜ TTL: 64'
+  },
+  4: {
+    from: PORT.rInR, to: PORT.pc2In,
+    color: '#f59e0b',
+    title: '④ ARP 请求（广播）  网关 → PC2',
+    l2: '目的MAC: FF:FF:FF:FF:FF:FF（广播）｜ 源MAC: CC:CC:CC:CC:CC:CC ｜ 类型: 0x0806 (ARP)',
+    l3: 'ARP 请求 — 发送方IP: 10.0.0.1 ｜ 目标IP: 10.0.0.20'
+  },
+  5: {
+    from: PORT.pc2In, to: PORT.rInR,
+    color: '#10b981',
+    title: '⑤ ARP 应答（单播）  PC2 → 网关',
+    l2: '目的MAC: CC:CC:CC:CC:CC:CC ｜ 源MAC: DD:DD:DD:DD:DD:DD ｜ 类型: 0x0806 (ARP)',
+    l3: 'ARP 应答 — 发送方IP: 10.0.0.20 ｜ 目标IP: 10.0.0.1'
+  },
+  6: {
+    from: PORT.rInR, to: PORT.pc2In,
+    color: '#3b82f6',
+    title: '⑥ 数据帧  网关 → PC2',
+    l2: '目的MAC: DD:DD:DD:DD:DD:DD（PC2）｜ 源MAC: CC:CC:CC:CC:CC:CC ｜ 类型: 0x0800 (IPv4)',
+    l3: '源IP: 192.168.1.10 ｜ 目的IP: 10.0.0.20（IP 头全程未修改）｜ TTL: 63'
+  }
+};
+
+// 每一步的 ARP 缓存快照（按步骤索引）
+const ARP_SNAPSHOT = {
+  0: [],
+  1: [],
+  2: [{ dev: 'PC1', ip: '192.168.1.1', mac: 'BB:BB:BB:BB:BB:BB', note: '默认网关' }],
+  3: [{ dev: 'PC1', ip: '192.168.1.1', mac: 'BB:BB:BB:BB:BB:BB', note: '默认网关' }],
+  4: [{ dev: 'PC1', ip: '192.168.1.1', mac: 'BB:BB:BB:BB:BB:BB', note: '默认网关' }],
+  5: [
+    { dev: 'PC1', ip: '192.168.1.1', mac: 'BB:BB:BB:BB:BB:BB', note: '默认网关' },
+    { dev: '路由器 R', ip: '10.0.0.20', mac: 'DD:DD:DD:DD:DD:DD', note: 'PC2 主机' }
+  ],
+  6: [
+    { dev: 'PC1', ip: '192.168.1.1', mac: 'BB:BB:BB:BB:BB:BB', note: '默认网关' },
+    { dev: '路由器 R', ip: '10.0.0.20', mac: 'DD:DD:DD:DD:DD:DD', note: 'PC2 主机' }
+  ]
+};
+
+// 每一步「新增」的 ARP 行（用于红色高亮），key = 设备|IP
+const NEW_ROW_KEYS = {
+  2: ['PC1|192.168.1.1'],
+  5: ['路由器 R|10.0.0.20']
+};
+
+// 每一步的文字讲解
+const STEP_EXPLAIN = {
+  0: '演示尚未开始。PC1（192.168.1.10/24）要访问 PC2（10.0.0.20/24），两者不在同一网段。点击「下一步」逐步查看跨网段 ARP 与帧转发的完整过程。',
+  1: '【步骤 1】PC1 用子网掩码判断出 10.0.0.20 与自己不在同一网段，于是决定把数据交给默认网关 192.168.1.1。查 ARP 缓存 —— 没有网关的表项，于是从网卡发出 ARP 广播：「谁是 192.168.1.1？」注意：广播帧的目的 MAC 是 FF:FF:FF:FF:FF:FF，<strong>目标 IP 填的是网关地址，而不是 PC2 的地址</strong>。',
+  2: '【步骤 2】路由器 G0/0 接口收到广播，发现目标 IP 就是自己，于是单播 ARP 应答：「192.168.1.1 的 MAC 是 BB:BB:BB:BB:BB:BB」。PC1 收到后把这条映射写入 ARP 缓存 —— 这是 PC1 在整个跨网段通信中唯一需要的一条 ARP 记录。',
+  3: '【步骤 3】PC1 开始封装数据帧：目的 MAC 填网关的 BB:BB:BB:BB:BB:BB，源 MAC 是自己的 AA:AA:AA:AA:AA:AA。三层 IP 头里，<strong>目的 IP 仍然是 10.0.0.20，全程不变</strong>。路由器收到帧后查路由转发表，命中 10.0.0.0/24 → 出接口 G0/1（直连）。',
+  4: '【步骤 4】路由器要把帧从 G0/1 发出去，必须知道 PC2 的 MAC。查自己的 ARP 缓存 —— 没有 10.0.0.20 的表项，于是从 G0/1 发出 ARP 广播：「谁是 10.0.0.20？」<strong>这就是「路由器二次 ARP」：ARP 只在直连网段内生效。</strong>',
+  5: '【步骤 5】PC2 收到广播，发现目标就是自己，于是单播应答自己的 MAC 地址。路由器把 10.0.0.20 → DD:DD:DD:DD:DD:DD 写入 ARP 缓存，准备转发。',
+  6: '【步骤 6】路由器重新封装二层帧：源 MAC 改为出口 G0/1 的 CC:CC:CC:CC:CC:CC，目的 MAC 填 PC2 的 DD:DD:DD:DD:DD:DD。<strong>三层 IP 头完全没有被修改</strong>，仍是 192.168.1.10 → 10.0.0.20。PC2 收到帧，跨网段通信完成。'
+};
+
+// 路由器路由转发表（固定内容，全程可见）
+const ROUTE_TABLE = [
+  { net: '192.168.1.0/24', iface: 'G0/0', next: '直连', type: '直连' },
+  { net: '10.0.0.0/24', iface: 'G0/1', next: '直连', type: '直连' }
+];
+
+/* ---------- 2. 全局状态 ---------- */
+
+let currentStep = 0;   // 当前步骤 0~6
+let animT = 0;         // 动画进度：0→1 为移动，1→1.45 为停留
+let lastTs = 0;        // 上一帧时间戳
+
+/* ---------- 3. Canvas 初始化 ---------- */
+
+const canvas = document.getElementById('topoCanvas');
+const ctx = canvas.getContext('2d');
+
+/**
+ * 根据设备像素比设置画布分辨率，保证在高分屏上清晰
+ */
+function setupCanvas() {
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width = '100%';
+  canvas.style.height = 'auto';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);   // 之后都按 900×420 的逻辑坐标绘制
+}
+
+/* ---------- 4. 绘图工具函数 ---------- */
+
+/**
+ * 绘制圆角矩形路径
+ */
+function roundRect(c, x, y, w, h, r) {
+  c.beginPath();
+  c.moveTo(x + r, y);
+  c.arcTo(x + w, y, x + w, y + h, r);
+  c.arcTo(x + w, y + h, x, y + h, r);
+  c.arcTo(x, y + h, x, y, r);
+  c.arcTo(x, y, x + w, y, r);
+  c.closePath();
+}
+
+/**
+ * 绘制网段虚线框
+ */
+function drawSubnet(x, y, w, h, label) {
+  ctx.save();
+  ctx.fillStyle = 'rgba(224, 240, 255, 0.42)';
+  ctx.strokeStyle = '#b8d4f0';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([7, 5]);
+  roundRect(ctx, x, y, w, h, 18);
+  ctx.fill();
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // 网段标签放在底部居中，避免与左上角弹窗重叠
+  ctx.fillStyle = '#3b6da8';
+  ctx.font = '600 13px "SF Mono", Consolas, monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('网段 ' + label, x + w / 2, y + h - 22);
+  ctx.restore();
+}
+
+/**
+ * 绘制物理链路
+ */
+function drawLink(x1, y1, x2, y2) {
+  ctx.save();
+  ctx.strokeStyle = '#9db4cc';
+  ctx.lineWidth = 2.5;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.stroke();
+  ctx.restore();
+}
+
+/**
+ * 绘制主机设备盒
+ */
+function drawDevice(box, name, ip, mac, net) {
+  ctx.save();
+
+  // 阴影 + 白底
+  ctx.shadowColor = 'rgba(37, 99, 235, 0.16)';
+  ctx.shadowBlur = 14;
+  ctx.shadowOffsetY = 3;
+  roundRect(ctx, box.x, box.y, box.w, box.h, 12);
+  ctx.fillStyle = '#ffffff';
+  ctx.fill();
+
+  // 边框
+  ctx.shadowColor = 'transparent';
+  ctx.strokeStyle = '#2563eb';
+  ctx.lineWidth = 2.2;
+  ctx.stroke();
+
+  const cx = box.x + box.w / 2;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  // 名称
+  ctx.fillStyle = '#0b1e33';
+  ctx.font = '700 17px system-ui, sans-serif';
+  ctx.fillText(name, cx, box.y + 26);
+
+  // IP
+  ctx.fillStyle = '#1e4a7a';
+  ctx.font = '13px "SF Mono", Consolas, monospace';
+  ctx.fillText(ip, cx, box.y + 54);
+
+  // MAC
+  ctx.fillStyle = '#9a5b1e';
+  ctx.font = '11px "SF Mono", Consolas, monospace';
+  ctx.fillText(mac, cx, box.y + 76);
+
+  // 网段
+  ctx.fillStyle = '#7b8fa5';
+  ctx.font = '11px system-ui, sans-serif';
+  ctx.fillText(net, cx, box.y + 96);
+
+  ctx.restore();
+}
+
+/**
+ * 绘制路由器（双网卡）
+ */
+function drawRouter() {
+  const b = BOX.router;
+  ctx.save();
+
+  // 盒体
+  ctx.shadowColor = 'rgba(11, 30, 51, 0.16)';
+  ctx.shadowBlur = 16;
+  ctx.shadowOffsetY = 4;
+  roundRect(ctx, b.x, b.y, b.w, b.h, 14);
+  ctx.fillStyle = '#ffffff';
+  ctx.fill();
+
+  ctx.shadowColor = 'transparent';
+  ctx.strokeStyle = '#0b1e33';
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+
+  // 标题
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#0b1e33';
+  ctx.font = '700 17px system-ui, sans-serif';
+  ctx.fillText('路由器 R', b.x + b.w / 2, b.y + 30);
+
+  // 分隔线
+  ctx.beginPath();
+  ctx.moveTo(b.x + 22, b.y + 50);
+  ctx.lineTo(b.x + b.w - 22, b.y + 50);
+  ctx.strokeStyle = '#e2ebf4';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // ---- 左接口 G0/0 ----
+  const lx = b.x + 22;
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#1e40af';
+  ctx.font = '700 13px system-ui, sans-serif';
+  ctx.fillText('G0/0', lx, b.y + 78);
+  ctx.fillStyle = '#1e4a7a';
+  ctx.font = '12px "SF Mono", Consolas, monospace';
+  ctx.fillText('192.168.1.1', lx, b.y + 100);
+  ctx.fillStyle = '#9a5b1e';
+  ctx.font = '10px "SF Mono", Consolas, monospace';
+  ctx.fillText('BB:BB:BB:BB:BB:BB', lx, b.y + 120);
+
+  // ---- 右接口 G0/1 ----
+  const rx = b.x + 142;
+  ctx.fillStyle = '#1e40af';
+  ctx.font = '700 13px system-ui, sans-serif';
+  ctx.fillText('G0/1', rx, b.y + 78);
+  ctx.fillStyle = '#1e4a7a';
+  ctx.font = '12px "SF Mono", Consolas, monospace';
+  ctx.fillText('10.0.0.1', rx, b.y + 100);
+  ctx.fillStyle = '#9a5b1e';
+  ctx.font = '10px "SF Mono", Consolas, monospace';
+  ctx.fillText('CC:CC:CC:CC:CC:CC', rx, b.y + 120);
+
+  // 接口小圆点
+  ctx.fillStyle = '#3b82f6';
+  [[b.x, 240], [b.x + b.w, 240]].forEach(([px, py]) => {
+    ctx.beginPath();
+    ctx.arc(px, py, 4, 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  ctx.restore();
+}
+
+/**
+ * 绘制移动中的数据包（带光晕与拖尾）
+ */
+function drawAnimation() {
+  if (currentStep < 1 || currentStep > 6) return;
+
+  const anim = STEP_ANIM[currentStep];
+  if (!anim) return;
+
+  const [x1, y1] = anim.from;
+  const [x2, y2] = anim.to;
+
+  // 进度封顶在 1，超过 1 的部分为「到达后停留」
+  const t = Math.min(animT, 1);
+  const px = x1 + (x2 - x1) * t;
+  const py = y1 + (y2 - y1) * t;
+
+  // ---- 拖尾轨迹 ----
+  if (t > 0.02) {
+    ctx.save();
+    ctx.strokeStyle = anim.color;
+    ctx.globalAlpha = 0.22;
+    ctx.lineWidth = 5;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(px, py);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // ---- 外圈光晕 ----
+  ctx.save();
+  const glow = ctx.createRadialGradient(px, py, 0, px, py, 24);
+  glow.addColorStop(0, anim.color + 'cc');
+  glow.addColorStop(1, anim.color + '00');
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.arc(px, py, 24, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
+  // ---- 数据包本体 ----
+  ctx.save();
+  ctx.fillStyle = anim.color;
+  ctx.beginPath();
+  ctx.arc(px, py, 8, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.arc(px, py, 3.5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
+  // ---- 广播标记：外围脉冲圆环 ----
+  if (anim.title.indexOf('广播') > -1 && t < 1) {
+    const pulse = 14 + Math.sin(animT * 20) * 4;
+    ctx.save();
+    ctx.strokeStyle = anim.color;
+    ctx.globalAlpha = 0.5;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(px, py, pulse, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+
+/**
+ * 绘制整个场景
+ */
+function drawScene() {
+  // 背景渐变
+  ctx.clearRect(0, 0, W, H);
+  const bg = ctx.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0, '#fbfdff');
+  bg.addColorStop(1, '#f2f7fd');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // 两个网段
+  drawSubnet(15, 50, 285, 330, '192.168.1.0/24');
+  drawSubnet(600, 50, 285, 330, '10.0.0.0/24');
+
+  // 物理链路
+  drawLink(PORT.pc1Out[0], PORT.pc1Out[1], PORT.rInL[0], PORT.rInL[1]);
+  drawLink(PORT.rInR[0], PORT.rInR[1], PORT.pc2In[0], PORT.pc2In[1]);
+
+  // 设备
+  drawRouter();
+  drawDevice(BOX.pc1, 'PC1', '192.168.1.10', 'AA:AA:AA:AA:AA:AA', '192.168.1.0/24');
+  drawDevice(BOX.pc2, 'PC2', '10.0.0.20', 'DD:DD:DD:DD:DD:DD', '10.0.0.0/24');
+
+  // 数据包动画
+  drawAnimation();
+}
+
+/* ---------- 5. 动画主循环 ---------- */
+
+function loop(ts) {
+  if (!lastTs) lastTs = ts;
+  // 限制单帧最大时间步，避免切后台回来时跳帧
+  const dt = Math.min((ts - lastTs) / 1000, 0.08);
+  lastTs = ts;
+
+  // 仅在有效步骤时推进动画
+  if (currentStep >= 1 && currentStep <= 6) {
+    animT += dt / 1.5;          // 1.5 秒走完全程
+    if (animT > 1.45) animT = 0; // 到达后停留 0.45 秒再重播
+  }
+
+  drawScene();
+  requestAnimationFrame(loop);
+}
+
+/* ---------- 6. 表格渲染 ---------- */
+
+/**
+ * 渲染路由器路由转发表（固定内容，步骤 3 起高亮命中的行）
+ */
+function renderRouteTable() {
+  const tbody = document.getElementById('routeBody');
+  tbody.innerHTML = '';
+
+  ROUTE_TABLE.forEach(row => {
+    const tr = document.createElement('tr');
+    // 步骤 3 之后，跨网段路由条目高亮（表示路由器查到这条路由）
+    if (currentStep >= 3 && row.net === '10.0.0.0/24') {
+      tr.classList.add('row-active');
+    }
+    tr.innerHTML = `
+      <td>${row.net}</td>
+      <td>${row.iface}</td>
+      <td>${row.next}</td>
+      <td>${row.type}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+/**
+ * 渲染 ARP 缓存表（随步骤变化，新增行红色高亮）
+ */
+function renderArpTable() {
+  const tbody = document.getElementById('arpBody');
+  tbody.innerHTML = '';
+
+  const rows = ARP_SNAPSHOT[currentStep] || [];
+
+  // 空表提示
+  if (rows.length === 0) {
+    const tr = document.createElement('tr');
+    tr.className = 'empty-row';
+    tr.innerHTML = '<td colspan="4">暂无 ARP 表项（缓存为空）</td>';
+    tbody.appendChild(tr);
+    return;
+  }
+
+  const newKeys = NEW_ROW_KEYS[currentStep] || [];
+
+  rows.forEach(r => {
+    const tr = document.createElement('tr');
+    const key = r.dev + '|' + r.ip;
+    if (newKeys.indexOf(key) > -1) {
+      tr.classList.add('row-new');   // 本步骤新增 → 红色高亮
+    }
+    tr.innerHTML = `
+      <td>${r.dev}</td>
+      <td>${r.ip}</td>
+      <td>${r.mac}</td>
+      <td>${r.note}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+/* ---------- 7. 弹窗与 UI 更新 ---------- */
+
+/**
+ * 更新数据包封装结构弹窗
+ */
+function renderPopup() {
+  const popup = document.getElementById('pktPopup');
+  const anim = STEP_ANIM[currentStep];
+
+  if (!anim) {
+    popup.classList.remove('show');
+    return;
+  }
+
+  popup.classList.add('show');
+  popup.style.borderColor = anim.color;
+
+  const titleEl = document.getElementById('pktTitle');
+  titleEl.textContent = anim.title;
+  titleEl.style.background = anim.color + '26';
+  titleEl.style.color = anim.color;
+
+  document.getElementById('pktL2').textContent = anim.l2;
+  document.getElementById('pktL3').textContent = anim.l3;
+}
+
+/**
+ * 更新文字讲解
+ */
+function renderExplain() {
+  document.getElementById('explainText').innerHTML =
+    STEP_EXPLAIN[currentStep] || '';
+}
+
+/**
+ * 更新按钮状态与步骤指示器
+ */
+function renderControls() {
+  document.getElementById('prevBtn').disabled = (currentStep === 0);
+  document.getElementById('nextBtn').disabled = (currentStep === 6);
+  document.getElementById('stepIndicator').textContent =
+    '步骤 ' + currentStep + ' / 6';
+}
+
+/**
+ * 统一的 UI 刷新入口
+ */
+function updateUI() {
+  renderRouteTable();
+  renderArpTable();
+  renderPopup();
+  renderExplain();
+  renderControls();
+}
+
+/* ---------- 8. 步骤控制 ---------- */
+
+/**
+ * 跳转到指定步骤
+ */
+function goToStep(step) {
+  currentStep = Math.max(0, Math.min(6, step));
+  animT = 0;          // 重置动画进度，重新播放
+  updateUI();
+}
+
+/* ---------- 9. 事件绑定 ---------- */
+
+document.getElementById('nextBtn').addEventListener('click', () => {
+  if (currentStep < 6) goToStep(currentStep + 1);
+});
+
+document.getElementById('prevBtn').addEventListener('click', () => {
+  if (currentStep > 0) goToStep(currentStep - 1);
+});
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  goToStep(0);
+});
+
+// 窗口尺寸变化时重新设置画布分辨率
+window.addEventListener('resize', () => {
+  setupCanvas();
+});
+
+/* ---------- 10. 启动 ---------- */
+
+setupCanvas();
+updateUI();
+requestAnimationFrame(loop);
+</script>
+
+</body>
+</html>
