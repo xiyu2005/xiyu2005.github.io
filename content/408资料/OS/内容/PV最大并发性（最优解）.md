@@ -155,13 +155,10 @@ thread3 写 `y` 时同时持有 `mutex_y_13` 和 `mutex_y_23`，因此可以同�
 ---
 
 ## 5. 结论
-
 在本题给定的三个线程场景下，用户提出的三信号量方案是**最优解**：
-
 - 正确性：所有读写冲突对都被正确互斥。
 - 最大并发：所有不冲突的操作都可以并行执行。
 - 最少信号量：3 个信号量已达到该并发要求下的下界。
-
 该方案属于“为每个读者实例分配独立锁”的策略，适用于线程数量固定且较少的情况。如果读者线程数量不固定，通用读写锁方案更具扩展性，但在本题条件下，定制方案更简洁且最优。
 
 
@@ -207,7 +204,7 @@ thread1() {
     P(mutex_y_13);          // 与 thread3 互斥访问 y
     w = add(x, y);
     V(mutex_y_13);
-    signal(done1);          // 通知 thread3：thread1 已完成读操作
+    V(done1);          // 通知 thread3：thread1 已完成读操作
 }
 
 thread2() {
@@ -217,7 +214,7 @@ thread2() {
     w = add(y, z);
     V(mutex_z_23);
     V(mutex_y_23);
-    signal(done2);          // 通知 thread3：thread2 已完成读操作
+    V(done2);          // 通知 thread3：thread2 已完成读操作
 }
 
 thread3() {
@@ -225,13 +222,15 @@ thread3() {
     w.a = 1;
     w.b = 1;
 
-    wait(done1);            // 等待 thread1 完成
-    wait(done2);            // 等待 thread2 完成
-
+	
+	 P(done2);            // 等待 thread2 完成
     P(mutex_z_23);          // 写 z，与 thread2 互斥
     z = add(z, w);
     V(mutex_z_23);
 
+
+   
+    P(done1);            // 等待 thread1 完成
     P(mutex_y_13);          // 写 y，与 thread1、thread2 互斥
     P(mutex_y_23);
     y = add(y, w);
@@ -254,8 +253,8 @@ thread3() {
 
 - 前驱关系可表示为：  
   ```
-  thread1 读 y ──┐
-                 ├──→ thread3 写 z ──→ thread3 写 y
-  thread2 读 y,z ┘
+  
+  thread2 读 y,z ──→ thread3 写 z ──→ thread3 写 y
+					thread1 读 y ──---------|
   ```
   这体现了顺序要求，而互斥关系仍通过访问表设计。
